@@ -33,7 +33,7 @@ CREATE TABLE Posts (
 	lookKind VARCHAR(50) NOT NULL,
 	lookTime INT NOT NULL,
 	lookDifficulty INT NOT NULL,
-	postTime DATETIME NOT NULL DEFAULT now()
+	time DATETIME NOT NULL DEFAULT now()
 );
 
 CREATE TABLE Comments (
