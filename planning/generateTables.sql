@@ -1,4 +1,5 @@
-USE DBGuiLab;
+CREATE DATABASE IF NOT EXISTS LookShare;
+USE LookShare;
 
 -- Drop Tables
 

@@ -95,4 +95,50 @@ module.exports = function routes(app, logger) {
       }
     });
   });
+
+  // TODO Hash and salt password before inserting?
+  app.post('/accounts', postAPI("INSERT INTO Accounts"));
+
+  app.post('/posts/post', postAPI("INSERT INTO Posts"));
+}
+
+// Sends queries back, whether successful or failure
+function handleQuery(err, result, res) {
+  if (err) {
+    res.end(JSON.stringify(err));
+    return;
+  }
+  res.end(JSON.stringify(result));
+}
+
+// Used in dynamic API handlers so this doesn't have to be written out every time
+let handleQueryStr = "(error, results, fields) => handleQuery(error, results, res)";
+
+function postAPI(query) {
+  return eval(`
+    async (req, res) => {
+      pool.getConnection((err, connection) => {
+        // Get all the passed parameters and values
+        let parameters = [];
+        let values = [];
+
+        for (let obj in req.body) {
+          parameters.push(obj);
+          values.push(typeof req.body[obj] === "string" ? \`"\${req.body[obj]}"\` : req.body[obj]);
+        }
+
+        // Convert the arrays to comma-separated values to fit SQL syntax
+        let sql = \`${query}
+          (\${parameters.join(", ")})
+          VALUES (\${values.join(", ")});\`;
+
+        if (err) {
+          logger.error("Could not connect to SQL Database!", err);
+          res.end(err);
+        } else {
+          connection.query(sql, ${handleQueryStr});
+        }
+      });
+    }
+  `);
 }
