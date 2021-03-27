@@ -98,7 +98,6 @@ module.exports = function routes(app, logger) {
     });
   });
 
-  // app.post('/accounts', postAPI("INSERT INTO Accounts"));
   app.post('/accounts', async (req, res) => {
     pool.getConnection((err, connection) => {
       // Try to connect to database, return an error if cannot

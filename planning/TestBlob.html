@@ -1,0 +1,18 @@
+<html>
+  <head><title>Testing Blobs</title></head>
+  <body>
+    <script>
+function input() {
+  let files = document.querySelector("input").files;
+  if (files.length > 0) {
+    let blob;
+    files[0].arrayBuffer().then(x => {
+      blob = new Blob([new Uint8Array(x)]);
+      console.log(blob);
+    });
+  }
+};
+    </script>
+    <input type="file" accept=".gif,.jpg,.jpeg,.png" oninput="input();">
+  </body>
+</html>
