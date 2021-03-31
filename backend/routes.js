@@ -179,6 +179,59 @@ module.exports = function routes(app, logger) {
     });
   });
 
+  app.post('/accounts/login', async (req, res) => {
+    pool.getConnection((err, connection) => {
+      // Try to connect to database, return an error if cannot
+      if (err) {
+        logger.error("Could not connect to the database!", err);
+        return res.status(400).json({
+          "data": -1,
+          "message": "Could not connect to the database!"
+        });
+      }
+
+      // Require a first name, last name, email, and password in the req.body
+      let validInformation = requireBodyParams(req, ["email", "password"]);
+      if (!validInformation) {
+        connection.release();
+        return res.status(400).json({
+          "data": -1,
+          "message": "Not a valid request! Check API Schema!"
+        });
+      }
+
+      // Hash password, with both password and email so that matching passwords don't have matching hashes
+      const hash = crypto.createHash("sha256");
+      hash.update(req.body.password + req.body.email + salt);
+      req.body.password = hash.digest("hex");
+
+      connection.query(`SELECT userId FROM Accounts WHERE email = "${req.body.email}" AND password = "${req.body.password}"`, (err, rows, fields) => {
+        connection.release();
+        if (err) {
+          logger.error("Could not connect to the database!", err);
+          return res.status(400).json({
+            "data": -1,
+            "message": "Could not connect to the database!"
+          });
+        }
+        let matched = rows.length > 0;
+        if (matched) {
+          logger.info(`Successful login for ${req.body.email}!`);
+          return res.status(200).json({
+            "data": rows[0].userId,
+            "message": "Login successful!"
+          });
+        } else {
+          logger.info(`Unsuccessful login for ${req.body.email}!`);
+          return res.status(400).json({
+            "data": -1,
+            "message": "Login failed!"
+          });
+        }
+      });
+    });
+  });
+
   app.post('/posts/post', postAPI("INSERT INTO Posts"));
 }
 
