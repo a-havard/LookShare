@@ -155,7 +155,6 @@ module.exports = function routes(app, logger) {
         // Add account to database
         let sql = `INSERT INTO Accounts(${parameters.join(", ")})
                       VALUES(${values.join(", ")});`;
-        logger.info(sql);
 
         connection.query(sql, (err, rows, fields) => {
           if (err) {
