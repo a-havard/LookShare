@@ -109,8 +109,8 @@ module.exports = function routes(app, logger) {
         });
       }
 
-      // Require a first name, last name, email, and password in the req.body
-      let validInformation = requireBodyParams(req, ["firstName", "lastName", "email", "password"]);
+      // Require a first name, last name, username, and password in the req.body
+      let validInformation = requireBodyParams(req, ["firstName", "lastName", "username", "password"]);
       if (!validInformation) {
         connection.release();
         return res.status(400).json({
@@ -120,10 +120,10 @@ module.exports = function routes(app, logger) {
       }
 
       // Get all the parameters in the body (in case later GUI allows you to write a bio, etc.
-      logger.info(`Received create account request for account: ${req.body.email}`);
+      logger.info(`Received create account request for account: ${req.body.username}`);
 
       // Make sure that account is available
-      connection.query(`SELECT * FROM Accounts WHERE email = "${req.body.email}"`, (err, rows, fields) => {
+      connection.query(`SELECT * FROM Accounts WHERE username = "${req.body.username}"`, (err, rows, fields) => {
         if (err) {
           logger.error("Could not connect to the database!", err);
           connection.release();
@@ -146,9 +146,9 @@ module.exports = function routes(app, logger) {
 
         logger.info(`That account is available!`);
 
-        // Hash password, with both password and email so that matching passwords don't have matching hashes
+        // Hash password, with both password and username so that matching passwords don't have matching hashes
         const hash = crypto.createHash("sha256");
-        hash.update(req.body.password + req.body.email + salt);
+        hash.update(req.body.password + req.body.username + salt);
         req.body.password = hash.digest("hex");
         let {parameters, values} = getReqParamsFromBody(req);
 
@@ -189,8 +189,8 @@ module.exports = function routes(app, logger) {
         });
       }
 
-      // Require a first name, last name, email, and password in the req.body
-      let validInformation = requireBodyParams(req, ["email", "password"]);
+      // Require a first name, last name, username, and password in the req.body
+      let validInformation = requireBodyParams(req, ["username", "password"]);
       if (!validInformation) {
         connection.release();
         return res.status(400).json({
@@ -199,12 +199,12 @@ module.exports = function routes(app, logger) {
         });
       }
 
-      // Hash password, with both password and email so that matching passwords don't have matching hashes
+      // Hash password, with both password and username so that matching passwords don't have matching hashes
       const hash = crypto.createHash("sha256");
-      hash.update(req.body.password + req.body.email + salt);
+      hash.update(req.body.password + req.body.username + salt);
       req.body.password = hash.digest("hex");
 
-      connection.query(`SELECT userId FROM Accounts WHERE email = "${req.body.email}" AND password = "${req.body.password}"`, (err, rows, fields) => {
+      connection.query(`SELECT userId FROM Accounts WHERE username = "${req.body.username}" AND password = "${req.body.password}"`, (err, rows, fields) => {
         connection.release();
         if (err) {
           logger.error("Could not connect to the database!", err);
@@ -215,13 +215,13 @@ module.exports = function routes(app, logger) {
         }
         let matched = rows.length > 0;
         if (matched) {
-          logger.info(`Successful login for ${req.body.email}!`);
+          logger.info(`Successful login for ${req.body.username}!`);
           return res.status(200).json({
             "data": rows[0].userId,
             "message": "Login successful!"
           });
         } else {
-          logger.info(`Unsuccessful login for ${req.body.email}!`);
+          logger.info(`Unsuccessful login for ${req.body.username}!`);
           return res.status(400).json({
             "data": -1,
             "message": "Login failed!"
