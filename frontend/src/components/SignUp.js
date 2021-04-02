@@ -1,6 +1,6 @@
 // Template used as a base from https://material-ui.com/getting-started/templates/
 
-import React from 'react'
+import React, { useState } from 'react'
 import Button from '@material-ui/core/Button'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import TextField from '@material-ui/core/TextField'
@@ -31,7 +31,17 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const SignUp = () => {
-  const classes = useStyles()
+  const classes = useStyles();
+  const [values, setValues] = useState({
+    firstName: false,
+    lastName: false,
+    username: false,
+    password: false
+  });
+
+  const handleChange = (prop) => (event) => {
+    setValues({ ...values, [prop]: event.target.value });
+  };
 
   return (
     <Container component="main" maxWidth="xs">
@@ -50,6 +60,7 @@ const SignUp = () => {
                 id="firstName"
                 label="First Name"
                 autoFocus
+                onChange={handleChange('firstName')}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -61,6 +72,7 @@ const SignUp = () => {
                 label="Last Name"
                 name="lastName"
                 autoComplete="lname"
+                onChange={handleChange('lastName')}
               />
             </Grid>
             <Grid item xs={12}>
@@ -72,6 +84,7 @@ const SignUp = () => {
                 label="Username"
                 name="username"
                 autoComplete="username"
+                onChange={handleChange('username')}
               />
             </Grid>
             <Grid item xs={12}>
@@ -84,6 +97,7 @@ const SignUp = () => {
                 type="password"
                 id="password"
                 autoComplete="current-password"
+                onChange={handleChange('password')}
               />
             </Grid>
           </Grid>
@@ -109,4 +123,4 @@ const SignUp = () => {
   )
 }
 
-export default SignUp
+export default SignUp;
