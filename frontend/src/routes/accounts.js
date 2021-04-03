@@ -1,14 +1,15 @@
-import axios from 'axios';
-import {url} from './config';
+import {conn} from './config';
 
 class Accounts {
-  addAccount(accountData) {
+  static addAccount(accountData) {
     return new Promise((resolve, reject) => {
-      axios.post(`${url}/accounts`)
+      conn.post(`/accounts`, accountData)
         .then(data => {
+          console.log("resolved")
           resolve(data);
         })
         .catch(data => {
+          console.log("rejected)")
           alert(data);
           reject(data);
         })

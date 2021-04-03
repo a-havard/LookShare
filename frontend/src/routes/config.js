@@ -1,3 +1,7 @@
-const url = "http://localhost:8000/";
+import axios from 'axios'
 
-export {url};
+const conn = axios.create({
+    baseURL: "http://localhost:8000"
+});
+
+export {conn};

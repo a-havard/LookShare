@@ -51,8 +51,6 @@ const useStyles = makeStyles((theme) => ({
 
 const SignIn = () => {
   const classes = useStyles()
-  const [username, setUsername] = useState();
-  const [password, setPassword] = useState();
 
   return (
     <Grid container component="main" className={classes.root}>
