@@ -3,18 +3,28 @@ import {conn} from './config';
 class Accounts {
   static addAccount(accountData) {
     return new Promise((resolve, reject) => {
-      conn.post(`/accounts`, accountData)
-        .then(data => {
-          console.log("resolved")
-          resolve(data);
+      conn.post("/accounts", accountData)
+        .then((res) => {
+          resolve(res);
         })
-        .catch(data => {
-          console.log("rejected)")
-          alert(data);
-          reject(data);
+        .catch((res) => {
+          alert(res);
+          reject(res);
         })
     });
   }
+
+  static getAccount(accountData) {
+    return new Promise((resolve, reject) => {
+      conn.post("/accounts/login", accountData)
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((res) => {
+          reject(res);
+        })
+    });
+  };
 }
 
 export default Accounts;
