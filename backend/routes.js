@@ -232,6 +232,8 @@ module.exports = function routes(app, logger) {
   });
 
   app.post('/posts/post', postAPI("INSERT INTO Posts"));
+
+  app.post('/reactions/reaction',postAPI("INSERT INTO Reactions"));         
 }
 
 // Sends queries back, whether successful or failure
