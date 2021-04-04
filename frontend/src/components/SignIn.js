@@ -1,22 +1,23 @@
 // Template used as a base from https://material-ui.com/getting-started/templates/
 
-import React, { useState } from 'react'
-import Button from '@material-ui/core/Button'
-import CssBaseline from '@material-ui/core/CssBaseline'
-import TextField from '@material-ui/core/TextField'
-import Link from '@material-ui/core/Link'
-import Paper from '@material-ui/core/Paper'
-import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography'
-import { createMuiTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles'
-
-import backgroundImage from '../assets/eyeshadow.jpg'
+import React, { useState } from 'react';
+import Button from '@material-ui/core/Button';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import TextField from '@material-ui/core/TextField';
+import Link from '@material-ui/core/Link';
+import Paper from '@material-ui/core/Paper';
+import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
+import { createMuiTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles';
+import backgroundImage from '../assets/eyeshadow.jpg';
+import Accounts from '../routes/accounts';
+import { useHistory } from 'react-router-dom';
 
 const fontTheme = createMuiTheme({
   typography: {
     fontFamily: 'pattaya'
   }
-})
+});
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -47,12 +48,28 @@ const useStyles = makeStyles((theme) => ({
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
-}))
+}));
 
 const SignIn = () => {
-  const classes = useStyles()
-  const [username, setUsername] = useState();
-  const [password, setPassword] = useState();
+  const history = useHistory();
+  const classes = useStyles();
+  const [values, setValues] = useState({
+    username: false,
+    password: false
+  });
+
+  const handleChange = (e) => {
+    setValues({ ...values, [e.target.name]: e.target.value });
+  }
+
+  const signin = (accountData) => {
+    const hasFalse = Object.values(accountData).includes(false)
+    if (!hasFalse) {
+      Accounts.getAccount(accountData)
+        .then(console.log("Login Successful!"))
+        .catch(console.log("Wrong username/password"));
+    }
+  }
 
   return (
     <Grid container component="main" className={classes.root}>
@@ -74,6 +91,7 @@ const SignIn = () => {
               name="username"
               autoComplete="username"
               autoFocus
+              onChange={handleChange}
             />
             <TextField
               variant="outlined"
@@ -85,19 +103,24 @@ const SignIn = () => {
               type="password"
               id="password"
               autoComplete="current-password"
+              onChange={handleChange}
             />
             <Button
-              type="submit"
               fullWidth
               variant="contained"
               color="primary"
               className={classes.submit}
+              onClick={() => signin(values)}
             >
               Sign In
             </Button>
             <Grid container>
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link
+                  href="#"
+                  variant="body2"
+                  onClick={() => history.push('/signup')}
+                >
                   {"Don't have an account? Sign Up"}
                 </Link>
               </Grid>
