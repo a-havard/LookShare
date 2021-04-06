@@ -233,9 +233,10 @@ module.exports = function routes(app, logger) {
 
   app.post('/posts/post', postAPI("INSERT INTO Posts"));
 
-  app.post('/reactions/reaction',postAPI("INSERT INTO Reactions"));
+  app.post('/reactions/reaction',postAPI("INSERT INTO Reactions"));         
 
-  app.get('/posts', async(req, res) => {
+  //Get Posts with Positive Reactions
+  app.get('/posts/pos', async(req, res) => {
     pool.getConnection(function (err, connection){
       if (err) {
         logger.error("Could not connect to the database!", err);
@@ -246,7 +247,7 @@ module.exports = function routes(app, logger) {
       } else {
         connection.query(`SELECT postID FROM Posts AS a LEFT OUTER JOIN Reactions AS b 
         on a.postID=b.parentPostID 
-        GROUP BY postID ORDER BY (COUNT(b.isPostive=1)-COUNT(b.isPostive=0))`, function (err, rows, fields) {
+        where b.isPostive=1`, function (err, rows, fields) {
           connection.release();
           if (err) {
             logger.error("Error while fetching values: \n", err);
@@ -263,9 +264,37 @@ module.exports = function routes(app, logger) {
       }
     });
   });
-         
-
-
+  
+  //Get Posts with Negative Reactions
+  app.get('/posts/neg', async(req, res) => {
+    pool.getConnection(function (err, connection){
+      if (err) {
+        logger.error("Could not connect to the database!", err);
+        return res.status(400).json({
+          "data": -1,
+          "message": "Could not connect to the database!"
+        });
+      } else {
+        connection.query(`SELECT postID FROM Posts AS a LEFT OUTER JOIN Reactions AS b 
+        on a.postID=b.parentPostID 
+        where b.isPostive=0`, function (err, rows, fields) {
+          connection.release();
+          if (err) {
+            logger.error("Error while fetching values: \n", err);
+            res.status(400).json({
+              "data": [],
+              "error": "Error obtaining values"
+            })
+          } else {
+            res.status(200).json({
+              "data": rows
+            });
+          }
+        });
+      }
+    });
+  }); 
+  
   
 }
 
