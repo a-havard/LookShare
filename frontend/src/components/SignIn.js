@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const SignIn = () => {
+const SignIn = (props) => {
   const history = useHistory();
   const classes = useStyles();
   const [values, setValues] = useState({

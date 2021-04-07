@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Button from '@material-ui/core/Button'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import TextField from '@material-ui/core/TextField'
@@ -11,6 +11,8 @@ import { green } from '@material-ui/core/colors';
 import Paper from '@material-ui/core/Paper';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
+import { Popover } from '@material-ui/core'
+import Posts from '../routes/posts';
 
 const useStyles = makeStyles((theme) => ({
     profilepicgrid:{
@@ -51,27 +53,54 @@ const useStyles = makeStyles((theme) => ({
     },
     
   }))
-  let numPictures=11;
-  let pictures=["https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150"];
- 
-const Profile =()=>{
+  //let numPictures=11;
+  //let pictures=["https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150"];
+ //let bools=[0,0,0,0,0,0,0,0,0,0,0,0];
+ //props will have account id  
+ let state = {
+  userName: 'Will_Dunn',
+  bio: 'This is a sample page',
+  pictures:["https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150"],
+  followers: 10,
+  following: 12
+};
+const Profile =(props)=>{
+  const loadprofile = (props) => {
+    const hasFalse = false;
+    if (!hasFalse) {
+      Posts.getAccountPosts(props)
+        .then(alert("Login Successful!"))
+        .catch(console.log("Wrong username/password"));
+    }
+  }
     const classes = useStyles();
+    //let numPictures
+    const [values, setValues] = useState({
+      userName: 'Will_Dunn',
+      bio: 'This is a sample page',
+      pictures:["https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150"],
+      length:12,
+      followers: 10,
+      following: 12
+    });
+    
     function FormRow() {
       let items=[];
-      for (var i = 0; i < numPictures; i+=3) {
+      for (var i = 0; i < values.pictures.length; i+=3) {
         items[i]=<React.Fragment>
         <Grid  item container xs={100} spacing={0} >
-        <Grid item xs={4}>
-          <img className={classes.picture} src={pictures[i]}></img>
+        <Grid item xs={4} >
+          <img className={classes.picture} src={values.pictures[i]}/> 
           
+       
         </Grid>
         <Grid item xs={4}>
-          <img className={classes.picture} src={pictures[i+1]}></img>
+          <img className={classes.picture} src={values.pictures[i+1]}></img>
           
         </Grid>
        
         <Grid item xs={4}>
-          <img className={classes.picture} src={pictures[i+2]}></img>
+          <img className={classes.picture} src={values.pictures[i+2]}></img>
           
         </Grid>
         </Grid>
@@ -83,6 +112,7 @@ const Profile =()=>{
     }
     return(
         <Grid container component="main" maxWidth="80vw" className={classes.grid} spacing={2}> 
+          <loadprofile/>
           <Grid className={classes.logo} item xs={12}>
             <img src="https://via.placeholder.com/150x50"></img>
           </Grid>
@@ -92,16 +122,16 @@ const Profile =()=>{
           </Grid>
           <Grid id="info" item container xs={4}  spacing={1}>
             <Grid item xs={5} >
-              <Paper className={classes.paper}>the_rock</Paper>
+              <Paper className={classes.paper}>{state.userName}</Paper>
             </Grid>
             <Grid item xs={5} >
               <Button className={classes.editButton}>Edit Profile</Button>
             </Grid>
             <Grid item xs={5} rs={1}>
-              <Paper className={classes.paper}>xs=2 rs=1 Followers</Paper>
+              <Paper className={classes.paper}>{state.followers}</Paper>
             </Grid>
             <Grid item xs={5} rs={1}>
-              <Paper className={classes.paper}>xs=2 rs=1 Following</Paper>
+              <Paper className={classes.paper}>{state.following}</Paper>
             </Grid>
        
         </Grid>
@@ -109,7 +139,7 @@ const Profile =()=>{
        
        
         <Grid item xs={5} rs={3}>
-          <Paper className={classes.paper}>xs=6 rs=3 Bio</Paper>
+          <Paper className={classes.paper}>{state.bio}</Paper>
         </Grid>
         <Grid item xs={12} rs={2}></Grid>
         <Grid item xs={12}>
