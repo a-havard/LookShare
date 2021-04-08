@@ -113,7 +113,7 @@ module.exports = function routes(app, logger) {
       let validInformation = requireBodyParams(req, ["firstName", "lastName", "username", "password"]);
       if (!validInformation) {
         connection.release();
-        return res.status(400).json({
+        return res.status(200).json({
           "data": -1,
           "message": "Not a valid request! Check API Schema!"
         });
@@ -193,7 +193,7 @@ module.exports = function routes(app, logger) {
       let validInformation = requireBodyParams(req, ["username", "password"]);
       if (!validInformation) {
         connection.release();
-        return res.status(400).json({
+        return res.status(200).json({
           "data": -1,
           "message": "Not a valid request! Check API Schema!"
         });
@@ -230,6 +230,176 @@ module.exports = function routes(app, logger) {
       });
     });
   });
+
+  //post a comment on a post
+  app.post('/comments/comment', async (req, res) => {
+    pool.getConnection(function (err, connection){
+      // Try to connect to database, return an error if cannot
+      if (err) {
+        logger.error("Could not connect to the database!", err);
+        return res.status(400).json({
+          "data": -1,
+          "message": "Could not connect to the database!"
+        });
+      }
+
+      // Require a authorId, parentPostId, parentCommentId, comment, isRepost, and restricted in the req.body
+      let validInformation = requireBodyParams(req, ["authorId", "parentPostId", "parentCommentId", "comment", "isRepost", "restricted"]);
+      if (!validInformation) {
+        connection.release();
+        return res.status(200).json({
+          "data": -1,
+          "message": "Not a valid request! Check API Schema!"
+        });
+      }
+
+      // Add comment to database
+        let sql = `INSERT INTO Comments(${parameters.join(", ")})
+                      VALUES(${values.join(", ")});`;
+
+      //throw an error if comment could not be added to database
+      connection.query(sql, (err, rows, fields) => {
+        if (err) {
+          logger.error("Could not post the comment!", err);
+          connection.release();
+          return res.status(400).json({
+            "data": -1,
+            "message": "Failed to post the comment!"
+          });
+        }
+
+        //comment posted successfully
+        logger.info(`Comment Posted!`);
+      });
+    });
+  }); 
+
+  app.get('/accounts/:accountId', async(req, res) => {
+    pool.getConnection((err, connection) => {
+      if (err) {
+        logger.error("Could not connect to the database!", err);
+        return res.status(400).json({
+          "data": -1,
+          "message": "Could not connect to the database!"
+        });
+      }
+
+      let validInformation = requireBodyParams(req, ["loggedInId"]);
+      if (!validInformation) {
+        connection.release();
+        return res.status(200).json({
+          "data": -1,
+          "message": "Not a valid request! Check API Schema!"
+        });
+      }
+
+      let loggedInId = typeof req.body.loggedInId === "string" ? JSON.parse(req.body.loggedInId) : req.body.loggedInId;
+      let accountId = typeof req.params.accountId === "string" ? JSON.parse(req.params.accountId) : req.params.accountId;
+      let sql = `SELECT private FROM Accounts WHERE userId = "${accountId}"`;
+
+      connection.query(sql, (err, rows, fields) => {
+        if (err) {
+          connection.release();
+          logger.error("Could not connect to the database!", err);
+          return res.status(400).json({
+            "data": -1,
+            "message": "Could not connect to the database!"
+          });
+        }
+
+        let matched = rows.length > 0;
+        if (!matched) {
+          connection.release();
+          logger.info(`Attempt to access account id #${accountId} which does not exist!`)
+          return res.status(200).json({
+            "data": [],
+            "message": `No matching account with id ${accountId}!`
+          })
+        }
+
+        let private = rows[0].private;
+
+        if (loggedInId !== accountId && private) {
+          sql = `SELECT firstName, lastName FROM Accounts WHERE userId = "${accountId}"`;
+          connection.query(sql, (err, rows, fields) => {
+            if (err) {
+              connection.release();
+              logger.error("Could not connect to the database!", err);
+              return res.status(400).json({
+                "data": -1,
+                "message": "Could not connect to the database!"
+              }); 
+            }
+
+            connection.release();
+            return res.status(200).json({
+              "data": rows[0],
+              "message": "Returning information for private account!"
+            });
+          });
+        } else {
+          sql = `SELECT firstName, lastName, bio, bioLink FROM Accounts WHERE userId = "${accountId}"`;
+          connection.query(sql, (err, rows, fields) => {
+            if (err) {
+              connection.release();
+              logger.error("Could not connect to the database!", err);
+              return res.status(400).json({
+                "data": -1,
+                "message": "Could not connect to the database!"
+              }); 
+            }
+
+            let returnValue = rows[0];
+            sql = `SELECT followerId as userId, firstName, lastName FROM Followers
+                    INNER JOIN Accounts
+                    ON userId = followerId
+                    WHERE leaderId = "${accountId}"`;
+            connection.query(sql, (err, rows, fields) => {
+              if (err) {
+                connection.release();
+                logger.error("Could not connect to the database!", err);
+                return res.status(400).json({
+                  "data": -1,
+                  "message": "Could not connect to the database!"
+                }); 
+              }
+
+              returnValue.followers = rows;
+              sql = `SELECT leaderId as userId, firstName, lastName FROM Followers
+                      INNER JOIN Accounts
+                      ON userId = leaderId
+                      WHERE followerId = "${accountId}"`;
+              connection.query(sql, (err, rows, fields) => {
+                if (err) {
+                  connection.release();
+                  logger.error("Could not connect to the database!", err);
+                  return res.status(400).json({
+                    "data": -1,
+                    "message": "Could not connect to the database!"
+                  }); 
+                }
+
+                returnValue.following = rows;
+                connection.release();
+                return res.status(200).json({
+                  "data": returnValue,
+                  "message": "Returning data for account!"
+                })
+              })
+            })
+          })
+        }
+      });
+
+      /*
+      if (loggedInId === accountId || public) {
+        sql = `SELECT firstName, lastName, bio, bioLink FROM Accounts WHERE userId = "${accountId}"`;
+      } else {
+        sql = `SELECT private`
+      }
+      */
+    });
+  })
 
   app.post('/posts/post', postAPI("INSERT INTO Posts"));
 
