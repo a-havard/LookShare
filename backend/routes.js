@@ -277,6 +277,69 @@ module.exports = function routes(app, logger) {
   app.post('/posts/post', postAPI("INSERT INTO Posts"));
 
   app.post('/reactions/reaction',postAPI("INSERT INTO Reactions"));         
+
+
+  //Get Posts with Positive Reactions
+  app.get('/posts/pos', async(req, res) => {
+    pool.getConnection(function (err, connection){
+      if (err) {
+        logger.error("Could not connect to the database!", err);
+        return res.status(400).json({
+          "data": -1,
+          "message": "Could not connect to the database!"
+        });
+      } else {
+        connection.query(`SELECT postID FROM Posts AS a LEFT OUTER JOIN Reactions AS b 
+        on a.postID=b.parentPostID 
+        where b.isPositive=1`, function (err, rows, fields) {
+          connection.release();
+          if (err) {
+            logger.error("Error while fetching values: \n", err);
+            res.status(400).json({
+              "data": [],
+              "error": "Error obtaining values"
+            })
+          } else {
+            res.status(200).json({
+              "data": rows
+            });
+          }
+        });
+      }
+    });
+  });
+  
+  //Get Posts with Negative Reactions
+  app.get('/posts/neg', async(req, res) => {
+    pool.getConnection(function (err, connection){
+      if (err) {
+        logger.error("Could not connect to the database!", err);
+        return res.status(400).json({
+          "data": -1,
+          "message": "Could not connect to the database!"
+        });
+      } else {
+        connection.query(`SELECT postID FROM Posts AS a LEFT OUTER JOIN Reactions AS b 
+        on a.postID=b.parentPostID 
+        where b.isPositive=0`, function (err, rows, fields) {
+          connection.release();
+          if (err) {
+            logger.error("Error while fetching values: \n", err);
+            res.status(400).json({
+              "data": [],
+              "error": "Error obtaining values"
+            })
+          } else {
+            res.status(200).json({
+              "data": rows
+            });
+          }
+        });
+      }
+    });
+  }); 
+  
+
 }
 
 // Sends queries back, whether successful or failure
