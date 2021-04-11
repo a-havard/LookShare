@@ -247,7 +247,7 @@ module.exports = function routes(app, logger) {
       } else {
         connection.query(`SELECT postID FROM Posts AS a LEFT OUTER JOIN Reactions AS b 
         on a.postID=b.parentPostID 
-        where b.isPostive=1`, function (err, rows, fields) {
+        where b.isPositive=1`, function (err, rows, fields) {
           connection.release();
           if (err) {
             logger.error("Error while fetching values: \n", err);
@@ -277,7 +277,7 @@ module.exports = function routes(app, logger) {
       } else {
         connection.query(`SELECT postID FROM Posts AS a LEFT OUTER JOIN Reactions AS b 
         on a.postID=b.parentPostID 
-        where b.isPostive=0`, function (err, rows, fields) {
+        where b.isPositive=0`, function (err, rows, fields) {
           connection.release();
           if (err) {
             logger.error("Error while fetching values: \n", err);
