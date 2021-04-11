@@ -554,38 +554,37 @@ module.exports = function routes(app, logger) {
           })
         }
         let private = rows[0].private;
-        if (private && authorId != loggedInId) {
-          sql = `SELECT * FROM Followers WHERE leaderId = ${loggedInId} AND followerId = ${authorId}`;
-          connection.query(sql, (err, rows, fields) => {
-            if (err) {
-              connection.release();
-              return couldNotConnect(err, res);
-            }
+        sql = `SELECT * FROM Followers WHERE leaderId = ${loggedInId} AND followerId = ${authorId}`;
+        connection.query(sql, (err, rows, fields) => {
+          if (err) {
+            connection.release();
+            return couldNotConnect(err, res);
+          }
 
-            let accessAuthorized = rows.length > 0;
-            if (!private || authorId === loggedInId || accessAuthorized) {
-              sql = `SELECT * FROM Posts WHERE authorId = ${authorId}`;
-              connection.query(sql, (err, rows, fields) => {
-                if (err) {
-                  connection.release();
-                  return couldNotConnect(err, res);
-                }
-
+          let accessAuthorized = rows.length > 0;
+          logger.info(loggedInId == authorId);
+          if (!private || authorId == loggedInId || accessAuthorized) {
+            sql = `SELECT * FROM Posts WHERE authorId = ${authorId}`;
+            connection.query(sql, (err, rows, fields) => {
+              if (err) {
                 connection.release();
-                return res.status(200).json({
-                  "data": rows,
-                  "message": "Success!"
-                });
-              })
-            } else {
+                return couldNotConnect(err, res);
+              }
+
               connection.release();
               return res.status(200).json({
-                "data": [],
-                "message": "This user is not authorized to access these posts!"
+                "data": rows,
+                "message": "Success!"
               });
-            }
-          });
-        }
+            })
+          } else {
+            connection.release();
+            return res.status(200).json({
+              "data": [],
+              "message": "This user is not authorized to access these posts!"
+            });
+          }
+        });
       });
     });
   });
