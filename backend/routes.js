@@ -394,6 +394,39 @@ module.exports = function routes(app, logger) {
     });
   });
 
+  //Get Post by Name
+  app.get('/posts/:Name', async(req, res) => {
+    pool.getConnection(function (err, connection){
+      if (err) {
+        logger.error("Could not connect to the database!", err);
+        return res.status(400).json({
+          "data": -1,
+          "message": "Could not connect to the database!"
+        });
+      } else {
+        let input = req.params.Name;
+        let names = input.split(" ");
+        let first=names[0];
+        let last=names[1];
+        connection.query(`SELECT postID, authorID, photo FROM Posts where 
+        authorId = (select userId from Accounts where firstName=${first} AND lastName=${last})`, function (err, rows, fields) {
+          connection.release();
+          if (err) {
+            logger.error("Error while fetching values: \n", err);
+            res.status(400).json({
+              "data": [],
+              "error": "Error obtaining values"
+            })
+          } else {
+            res.status(200).json({
+              "data": rows
+            });
+          }
+        });
+      }
+    });
+  });
+
   //Get Posts with Positive Reactions
   app.get('/posts/pos', async(req, res) => {
     pool.getConnection(function (err, connection){
