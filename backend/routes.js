@@ -282,6 +282,117 @@ module.exports = function routes(app, logger) {
 
   app.post('/reactions/reaction',postAPI("INSERT INTO Reactions"));         
 
+ //Get Specific Post (with Post ID)
+ app.get('/posts/:ID', async(req, res) => {
+  pool.getConnection(function (err, connection){
+    if (err) {
+      logger.error("Could not connect to the database!", err);
+      return res.status(400).json({
+        "data": -1,
+        "message": "Could not connect to the database!"
+      });
+    } else {
+      connection.query(`SELECT * FROM Posts where PostId="${req.params.ID}"`, function (err, rows, fields) {
+        connection.release();
+        if (err) {
+          logger.error("Error while fetching values: \n", err);
+          res.status(400).json({
+            "data": [],
+            "error": "Error obtaining values"
+          })
+        } else {
+          res.status(200).json({
+            "data": rows
+          });
+        }
+      });
+    }
+  });
+});  
+
+ //Show Posts (Automatically showing the newest posts)
+  app.get('/posts/get', async(req, res) => {
+    pool.getConnection(function (err, connection){
+      if (err) {
+        logger.error("Could not connect to the database!", err);
+        return res.status(400).json({
+          "data": -1,
+          "message": "Could not connect to the database!"
+        });
+      } else {
+        connection.query(`SELECT postID, authorID, photo FROM Posts order by time`, function (err, rows, fields) {
+          connection.release();
+          if (err) {
+            logger.error("Error while fetching values: \n", err);
+            res.status(400).json({
+              "data": [],
+              "error": "Error obtaining values"
+            })
+          } else {
+            res.status(200).json({
+              "data": rows
+            });
+          }
+        });
+      }
+    });
+  });
+
+  //Sort Post(Shows Earliest Posts)
+  app.get('/posts/date', async(req, res) => {
+    pool.getConnection(function (err, connection){
+      if (err) {
+        logger.error("Could not connect to the database!", err);
+        return res.status(400).json({
+          "data": -1,
+          "message": "Could not connect to the database!"
+        });
+      } else {
+        connection.query(`SELECT postID, authorID, photo FROM Posts order by time ASC`, function (err, rows, fields) {
+          connection.release();
+          if (err) {
+            logger.error("Error while fetching values: \n", err);
+            res.status(400).json({
+              "data": [],
+              "error": "Error obtaining values"
+            })
+          } else {
+            res.status(200).json({
+              "data": rows
+            });
+          }
+        });
+      }
+    });
+  });
+
+  //Get Post by Difficulty
+  app.get('/posts/:Difficulty', async(req, res) => {
+    pool.getConnection(function (err, connection){
+      if (err) {
+        logger.error("Could not connect to the database!", err);
+        return res.status(400).json({
+          "data": -1,
+          "message": "Could not connect to the database!"
+        });
+      } else {
+        connection.query(`SELECT postID, authorID, photo FROM Posts where lookDifficulty="${req.params.Difficulty}"`, function (err, rows, fields) {
+          connection.release();
+          if (err) {
+            logger.error("Error while fetching values: \n", err);
+            res.status(400).json({
+              "data": [],
+              "error": "Error obtaining values"
+            })
+          } else {
+            res.status(200).json({
+              "data": rows
+            });
+          }
+        });
+      }
+    });
+  });
 
   //Get Posts with Positive Reactions
   app.get('/posts/pos', async(req, res) => {
