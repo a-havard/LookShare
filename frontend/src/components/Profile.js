@@ -11,6 +11,7 @@ import { green } from '@material-ui/core/colors';
 import Paper from '@material-ui/core/Paper';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
+import Post from './Post';
 
 const useStyles = makeStyles((theme) => ({
     profilepicgrid:{
@@ -67,7 +68,6 @@ const Profile =()=>{
         </Grid>
         <Grid item xs={4}>
           <img className={classes.picture} src={pictures[i+1]}></img>
-          
         </Grid>
        
         <Grid item xs={4}>
@@ -89,7 +89,9 @@ const Profile =()=>{
          
           <Grid className={classes.profilepicgrid } item xs={2} rs={3} spacing={30}>
             <img src="https://via.placeholder.com/150"></img>
+            
           </Grid>
+          
           <Grid id="info" item container xs={4}  spacing={1}>
             <Grid item xs={5} >
               <Paper className={classes.paper}>the_rock</Paper>
@@ -106,7 +108,7 @@ const Profile =()=>{
        
         </Grid>
         
-       
+       <Post/>
        
         <Grid item xs={5} rs={3}>
           <Paper className={classes.paper}>xs=6 rs=3 Bio</Paper>
@@ -114,6 +116,7 @@ const Profile =()=>{
         <Grid item xs={12} rs={2}></Grid>
         <Grid item xs={12}>
           <FormRow />
+
         </Grid>
       
         </Grid>
