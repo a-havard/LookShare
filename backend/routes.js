@@ -233,7 +233,7 @@ module.exports = function routes(app, logger) {
 
   //post a comment on a post
   app.post('/comments/comment', async (req, res) => {
-    pool.getConnection(function (err, connection){
+    pool.getConnection(function (err, connection) {
       // Try to connect to database, return an error if cannot
       if (err) {
         logger.error("Could not connect to the database!", err);
@@ -254,23 +254,27 @@ module.exports = function routes(app, logger) {
       }
 
       // Add comment to database
-        let sql = `INSERT INTO Comments(${parameters.join(", ")})
-                      VALUES(${values.join(", ")});`;
+      let sql = `INSERT INTO Comments(${parameters.join(", ")})
+                    VALUES(${values.join(", ")});`;
 
       //throw an error if comment could not be added to database
       connection.query(sql, (err, rows, fields) => {
-          if (err) {
-            logger.error("Could not post the comment!", err);
-            connection.release();
-            return res.status(400).json({
-              "data": -1,
-              "message": "Failed to post the comment!"
-            });
-          }
+        if (err) {
+          logger.error("Could not post the comment!", err);
+          connection.release();
+          return res.status(400).json({
+            "data": -1,
+            "message": "Failed to post the comment!"
+          });
+        }
+      });
 
       //comment posted successfully
       logger.info(`Comment Posted!`);
-
+      return res.status(200).json({
+        "data": 0,
+        "message": "Successfully posted comment!"
+      });
     });
   }); 
 
@@ -338,8 +342,6 @@ module.exports = function routes(app, logger) {
       }
     });
   }); 
-  
-
 }
 
 // Sends queries back, whether successful or failure
