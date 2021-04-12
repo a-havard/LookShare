@@ -404,16 +404,16 @@ module.exports = function routes(app, logger) {
         });
       }
 
-      let validInformation = requireBodyParams(req, ["loggedInId"]);
+      let validInformation = requireQueryParams(req, ["loggedInId"]);
       if (!validInformation) {
         connection.release();
         return res.status(200).json({
           "data": -1,
-          "message": "Not a valid request! Check API Schema!"
+          "message": "Not a valid request! Need loggedInId in header!"
         });
       }
 
-      let loggedInId = typeof req.body.loggedInId === "string" ? JSON.parse(req.body.loggedInId) : req.body.loggedInId;
+      let loggedInId = typeof req.query.loggedInId === "string" ? JSON.parse(req.query.loggedInId) : req.query.loggedInId;
       let accountId = typeof req.params.accountId === "string" ? JSON.parse(req.params.accountId) : req.params.accountId;
       let sql = `SELECT private FROM Accounts WHERE userId = "${accountId}"`;
 
@@ -510,14 +510,6 @@ module.exports = function routes(app, logger) {
           })
         }
       });
-
-      /*
-      if (loggedInId === accountId || public) {
-        sql = `SELECT firstName, lastName, bio, bioLink FROM Accounts WHERE userId = "${accountId}"`;
-      } else {
-        sql = `SELECT private`
-      }
-      */
     });
   })
 
@@ -529,15 +521,16 @@ module.exports = function routes(app, logger) {
       }
 
       let authorId = typeof req.params.authorID === "string" ? parseInt(req.params.authorId) : req.params.authorId;
-      let loggedInId = typeof req.body.loggedInId === "string" ? parseInt(req.body.loggedInId) : req.body.loggedInId;
-      let validInformation = requireBodyParams(req, ["loggedInId"]);
+      let validInformation = requireQueryParams(req, ["loggedInId"]);
       if (!validInformation) {
         connection.release();
         return res.status(400).json({
           "data": -1,
-          "message": "Not a valid request! Need to pass 'loggedInId' in req.body!"
+          "message": "Not a valid request! Need to pass 'loggedInId' in URL!"
         });
       }
+
+      let loggedInId = typeof req.query.loggedInId === "string" ? parseInt(req.query.loggedInId) : req.query.loggedInId;
 
       let sql = `SELECT private FROM Accounts WHERE userId = ${authorId}`;
       connection.query(sql, (err, rows, fields) => {
@@ -681,6 +674,15 @@ function getReqParamsFromBody(req) {
   }
 
   return returnValue;
+}
+
+// Returns whether req.param has all the given parameters
+function requireQueryParams(req, params) {
+  for (let i=0; i<params.length; i++) {
+    if (typeof req.query[params[i]] === "undefined") return false;
+  }
+
+  return true;
 }
 
 // Returns whether req.body has all the given parameters
