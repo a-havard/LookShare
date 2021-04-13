@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Route} from 'react-router-dom'
 
 import SignIn from './components/SignIn'
 import SignUp from './components/SignUp'
-import Profile from './components/Profile'
+import ProfilePage from './components/ProfilePage'
 
 const App = props => {
   return(
@@ -12,7 +12,7 @@ const App = props => {
       <Router>
         <Route exact path="/" component ={SignIn} />
         <Route exact path="/signup" component={SignUp} />
-        <Route exact path="/profile" component={Profile} props={1} />
+        <Route exact path="/profile" component={()=><ProfilePage id={13}/>}   />
       </Router>
     </div>
   )
