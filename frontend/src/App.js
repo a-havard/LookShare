@@ -12,7 +12,7 @@ const App = props => {
       <Router>
         <Route exact path="/" component ={SignIn} />
         <Route exact path="/signup" component={SignUp} />
-        <Route exact path="/profile" component={()=><ProfilePage id={13}/>}   />
+        <Route exact path="/profile" component={()=><ProfilePage id={3}/>}   />
       </Router>
     </div>
   )
