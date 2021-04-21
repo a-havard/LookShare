@@ -458,7 +458,7 @@ module.exports = function routes(app, logger) {
             });
           });
         } else {
-          sql = `SELECT firstName, lastName, bio, bioLink FROM Accounts WHERE userId = "${accountId}"`;
+          sql = `SELECT firstName, lastName, bio, bioLink, username FROM Accounts WHERE userId = "${accountId}"`;
           connection.query(sql, (err, rows, fields) => {
             if (err) {
               connection.release();
