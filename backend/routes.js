@@ -584,7 +584,7 @@ module.exports = function routes(app, logger) {
 
   app.post('/posts/post', postAPI("INSERT INTO Posts"));
 
-  app.post('/reactions/reaction',postAPI("INSERT INTO Reactions"));         
+  app.post('/reactions/reaction', postAPI("INSERT INTO Reactions"));         
 
 
   //Get Posts with Positive Reactions
