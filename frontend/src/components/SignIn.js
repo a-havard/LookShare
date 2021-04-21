@@ -66,7 +66,9 @@ const SignIn = () => {
     const hasFalse = Object.values(accountData).includes(false)
     if (!hasFalse) {
       Accounts.getAccount(accountData)
-        .then(console.log("Login Successful!"))
+        .then(()=>{console.log("Login Successful!");
+        localStorage.setItem('loggedInId',13);
+        history.push('/profile/13')})
         .catch(console.log("Wrong username/password"));
     }
   }

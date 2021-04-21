@@ -18,6 +18,7 @@ class Accounts {
     return new Promise((resolve, reject) => {
       conn.post("/accounts/login", accountData)
         .then((res) => {
+          console.log(res);
           resolve(res);
         })
         .catch((res) => {
