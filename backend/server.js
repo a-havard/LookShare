@@ -21,7 +21,7 @@ const app = express();
 const logger = log({ console: true, file: false, label: config.name });
 
 // specify middleware to use
-app.use(express.bodyParser({limit: '50mb'}));
+app.use(bodyParser.json({limit: '50mb'}));
 app.use(cors({
   origin: '*'
 }));
