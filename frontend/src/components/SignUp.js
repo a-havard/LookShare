@@ -124,13 +124,14 @@ const SignUp = () => {
           >
             Sign Up
           </Button>
-          <Grid container justify="flex-end">
-            <Grid item>
-              <Link href="#" variant="body2">
-                Already have an account? Sign in
-              </Link>
-            </Grid>
-          </Grid>
+            <Button
+                fullWidth
+                variant="contained"
+                color="primary"
+                className={classes.submit}
+                onClick={() => history.push('/')}
+                  >
+             </Button>
         </form>
       </div>
     </Container>
