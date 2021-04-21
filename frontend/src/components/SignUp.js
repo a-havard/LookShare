@@ -124,15 +124,8 @@ const SignUp = () => {
           >
             Sign Up
           </Button>
-            <Button
-                fullWidth
-                variant="contained"
-                color="primary"
-                className={classes.submit}
-                onClick={() => history.push('/')}
-                  >
-             </Button>
-        </form>
+                  <Link to="/" onClick={() => history.push('/')}>Already have an account? Sign in</Link>
+          </form>
       </div>
     </Container>
   );
