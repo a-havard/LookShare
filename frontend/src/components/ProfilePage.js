@@ -19,7 +19,7 @@ import CardMedia from '@material-ui/core/CardMedia';
 import { Popover } from '@material-ui/core'
 import PostAPIs from '../routes/postAPIs';
 import Profile from '../routes/profile';
-import { useParams } from 'react-router';
+import { matchPath, useParams } from 'react-router';
 import Axios from 'axios';
 
 import {conn} from '../routes/config'
@@ -61,6 +61,18 @@ const useStyles = makeStyles((theme) => ({
     submit: {
       margin: theme.spacing(3, 0, 2),
     },
+    postPicture:{
+      width: '100%',
+    },
+    profilePic:{
+      borderRadius: '50%',
+    },
+    forms:{
+      width:'100%',
+      height:'100%'
+      
+      
+    },
     
   }))
 
@@ -68,6 +80,9 @@ const useStyles = makeStyles((theme) => ({
  
 var loaded=false;
 const ProfilePage =(props)=>{
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  //const [params,setParams]=React.useState(null);
+var par=useParams();
   let fileInput = React.createRef(); 
   let temp;
   let [username,setUsername]=useState(null);
@@ -78,20 +93,27 @@ const ProfilePage =(props)=>{
   let [posts,setPosts]=useState([]);
   let [popOpen,setPopOpen]=useState();
   let [addingPost,setPosting]=useState();
+  const [showFollowerList,setSFL]=useState();
   const [dataUri, setDataUri] = useState('');
   const [values, setValues] = useState([]);
+
  
 useEffect(() => {
+  //console.log(par);
+  var id=parseInt(par.id);
   if (!username) {
-    conn.get("/accounts/"+props.id,{params:{loggedInId : props.id}})
+   
+    conn.get("/accounts/"+par.id,{params:{loggedInId : props.loggedInId}})
     .then((res) => {
-        console.log(res.data);
+        //console.log(res.data);
 
    
         setUsername(''+res.data.data.username);
         setBio(''+res.data.data.bio);
         setBioLink(''+res.data.data.bioLink);
+        if(res.data.data.followers)
         setFollowers(res.data.data.followers);
+        if(res.data.data.following)
         setFollowing(res.data.data.following);
        
         
@@ -100,9 +122,9 @@ useEffect(() => {
       .catch((res) => {
       
       })
-  conn.get("/posts/authors/"+props.id,{params:{loggedInId : props.id}})
+  conn.get("/posts/authors/"+par.id,{params:{loggedInId : props.loggedInId}})
     .then((res) => {
-      console.log(res.data.data);
+      //console.log(res.data.data);
       setPosts(res.data.data);
       
    
@@ -118,7 +140,9 @@ useEffect(() => {
    
   }
 });
- 
+ function openFollowers(){
+   setSFL(true);
+ }
   function getPictures(){
     console.log(posts);
     let pics=[];
@@ -139,15 +163,61 @@ useEffect(() => {
       reader.readAsText(blob);
   }
   setValues(pics);
-  console.log(pics);
+  //console.log(pics);
   }
-  
+  /*
+  */
   const classes = useStyles();
     //let numPictures
+  function FollowerList(){
+    const handleClick = (event) => {
+      setAnchorEl(event.currentTarget);
+      console.log("click");
+      if(!showFollowerList)
+        setSFL(true);
+      
+    };
+  
+    const handleClose = () => {
+      setAnchorEl(null);
+      setSFL(false);
+    };
+  
+    const open = showFollowerList;
+    const id = open ? 'simple-popover' : undefined;
+    let pop=<div><Button aria-describedby={id} variant="contained" color="primary" onClick={handleClick}>
+    Followers: {followers.length}
+  </Button>
+    <Popover
+      id={id}
+      open={showFollowerList}
+      anchorEl={anchorEl}
+      onClose={handleClose}
+      anchorOrigin={{
+        vertical: 'center',
+        horizontal: 'center',
+      }}
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'center',
+      }}
+    >
+        <ul className="list-group">
+        {
+            followers.map((x, i) => <li className="list-group-item" key={ i }>
+          <Link to={ '/'}>{x.firstName }</Link></li>)
+        }
+     </ul>
+    </Popover></div>;
+    return (
+      pop
+    ); 
+    
+  }
   function updateBio (newBio,newLink){
     setBio(newBio);
     setBioLink(newLink);
-    conn.put("/accounts/"+props.id+"/bio",{bio: newBio, bioLink:newLink})
+    conn.put("/accounts/"+par.id+"/bio",{bio: newBio, bioLink:newLink})
     .then((res)=>{console.log(res)})
     .then(setPopOpen(false));
   }
@@ -226,11 +296,11 @@ useEffect(() => {
     let reader = new FileReader();
     let inFile = file;
 
-    console.log(inFile);
-    console.log("add Post");
+    //console.log(inFile);
+    //console.log("add Post");
     reader.onloadend = () => {
       console.log(reader.result);
-      let t= {authorId: props.id,
+      let t= {authorId: par.id,
         instructions: "There's literally nothing to do because there's nothing there!",
         lookDifficulty: 1,
         lookKind: "invisible",
@@ -242,10 +312,10 @@ useEffect(() => {
       
         conn.post('/posts/post',t)
           .then((res)=>{console.log(res)
-            conn.get("/posts/authors/"+props.id,{params:{loggedInId : props.id}})
+            conn.get("/posts/authors/"+par.id,{params:{loggedInId : props.loggedInId}})
           .then((res) => {
-            console.log(res.data.data);
-            let t=res.data.data;
+            //console.log(res.data.data);
+             t=res.data.data;
             
             setPosts(t);
           });});
@@ -257,8 +327,8 @@ useEffect(() => {
     
   }
   function PostInformationForm(){
-     let temp='';
-    const [anchorEl, setAnchorEl] = React.useState(null);
+    
+    
     
     const handleClick = (event) => {
       setAnchorEl(event.currentTarget);
@@ -267,73 +337,125 @@ useEffect(() => {
       
     };
   
-    const handleClose = () => {
-      setAnchorEl(null);
-      setPosting(false);
-    };
+   
   
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
     let pop=<div><Button aria-describedby={id} variant="contained" color="primary" onClick={handleClick}>
     Add New Post
   </Button>
-    <Popover
-      id={id}
-      open={addingPost}
-      anchorEl={anchorEl}
-      onClose={handleClose}
-      anchorOrigin={{
-        vertical: 'top',
-        horizontal: 'center',
-      }}
-      transformOrigin={{
-        vertical: 'top',
-        horizontal: 'center',
-      }}
-    >
-     <form>
-     <input
-                        type="file"
-                        name="number"
-                        id="number"
-                        className="form-control"
-                        //onChange={handleImageChange}
-                        ref={fileInput}
-                        onChange={ event => {temp=( event.target.files[0] )} } 
-                    
-                        />
-   
-      <button
-                            type="button"
-                            className="btn btn-success btn-block"
-                            onClick={ () => addPost(temp) }>
-                            Add
-                        </button>            
-     </form>
-    </Popover></div>;
+    </div>;
     return (
       pop
     );
   }
-  /*function buffToImage(val){
-    console.log(val);
-    var arrayBufferView = new Uint8Array( val.data );
-    var blob = new Blob( [arrayBufferView]);
+  const handleClick = (event) => {
+    //setAnchorEl(event.currentTarget);
+    if(!popOpen)
+    setPosting(true);
+    
+  };
+    function PostingPopover(){
+      let file='';
+      let instructionlist='';
+      let lookkind='';
+      let difficulty=0;
+    
+      let ratings=[1,2,3,4,5,6,7,8,9];
+    const handleClose = () => {
+      setAnchorEl(null);
+      setPosting(false);
+    };
+      return <Popover 
+      className={classes.overlay}
+      
+      open={addingPost}
+      anchorPosition={{left: '0vw',top: '0vh'}
+      }
   
-   var imageUrl = URL.createObjectURL( blob );
-   var reader = new FileReader();
-   let y;
-   reader.onload = function() {
-      // alert(reader.result);
-      console.log(reader.result);
-       return(reader.result);
+      onClose={handleClose}
+      anchorOrigin={{
+        vertical: 'top',
+        horizontal: 'left'
+      }}
+     
+    >
+     
+     <form className={classes.forms}>
+      <Grid>
        
-   }
-   reader.readAsText(blob);
-  }*/
-
+      <Grid item xs={12} >
+        <label for='instructions'>Please List Your Instructions:  </label><br/>
+      <input
+                        type="text"
+                        name="Instructions"
+                        id="instructions"
+                        className="form-control"
+                        //onChange={handleImageChange}
+                        ref={fileInput}
+                        onChange={ event => {instructionlist=( event.target.value)} } 
+                    
+                        />
+                        </Grid>
+          <Grid item xs={5} >
+        <label for='kind'>What type of look:  </label><br/>
+      <input
+                        type="text"
+                        name="kind"
+                        id="kind"
+                        className="form-control"
+                        //onChange={handleImageChange}
+                        ref={fileInput}
+                        onChange={event => {lookkind=( event.target.value)}} 
+                    
+                        />
+                        </Grid>
+        <Grid item xs={5} >
+        <label for='photo'>Look Difficulty:  </label><br/>
+      <select
+                        type="select"
+                        name="photo"
+                        id="Instructions"
+                        className="form-control"
+                        //onChange={handleImageChange}
+                        ref={fileInput}
+                        onChange={ event => {difficulty=(event.target.value )} } 
+                    
+                        >
+                         {
+                                    ratings.map((x, i) => <option key={ i }>{ x }</option>)
+                                }</select>
+                        </Grid>
+      <Grid item xs={12} >
+        <label for='photo'>Select Photo:   </label><br/>
+      <input
+                        type="file"
+                        name="photo"
+                        id="photo"
+                        className="form-control"
+                        //onChange={handleImageChange}
+                        ref={fileInput}
+                        onChange={ event => {file=( event.target.files[0])} } 
+                    
+                        />
+                        </Grid>
+                        <Grid item xs={12} >
+                        <button
+                            type="button"
+                            className="btn btn-success btn-block"
+                            onClick={ () => addPost(file) }>
+                            Post it
+                        </button> 
+                          </Grid>
+      </Grid>
+     
+   
+                
+     </form>
+    </Popover>
+    }
     function ShowImg(val){
-      console.log(val);
+      //console.log(val);
       const [pic, setPic] = useState('');
      
         useEffect(()=>{
@@ -350,13 +472,13 @@ useEffect(() => {
          let y;
          reader.onload = function() {
             // alert(reader.result);
-            console.log(reader.result);
+            //console.log(reader.result);
              setPic(reader.result);
              
          }
          reader.readAsText(blob);
         }
-     return <img src={pic}/>;
+     return <img src={pic} className={classes.postPicture}/>;
       
     }
     function FormRow() {
@@ -368,6 +490,7 @@ useEffect(() => {
         <Grid item xs={4} key={ i }>
           <Card className={classes.root}>
             <CardActionArea>
+           
             <CardContent>
               <ShowImg val={x.photo}/>
               </CardContent>
@@ -382,7 +505,8 @@ useEffect(() => {
     }
    
     return(
-      
+      <>
+      <PostingPopover/>
       <Grid container component="main" maxWidth="80vw" className={classes.grid} spacing={2}> 
        
       <Grid className={classes.logo} item xs={12}>
@@ -391,7 +515,7 @@ useEffect(() => {
       </Grid>
      
       <Grid className={classes.profilepicgrid } item xs={2} rs={3} spacing={30}>
-        <img src="https://via.placeholder.com/150"></img>
+        <img src="https://via.placeholder.com/150" className={classes.profilePic}></img>
     
       </Grid>
       <Grid id="info" item container xs={4}  spacing={1}>
@@ -402,7 +526,7 @@ useEffect(() => {
           <BioForm/>
         </Grid>
         <Grid item xs={5} rs={1}>
-          <Paper className={classes.paper}>{followers.length}</Paper>
+          <Paper className={classes.paper}><FollowerList/></Paper>
         </Grid>
         <Grid item xs={5} rs={1}>
           <Paper className={classes.paper}>{following.length}</Paper>
@@ -421,7 +545,7 @@ useEffect(() => {
     <Grid item xs={12} rs={2}><PostInformationForm/></Grid>
     </Grid>
     
-
+</>
     );
 }
 
