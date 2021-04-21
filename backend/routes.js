@@ -700,12 +700,10 @@ function postAPI(query) {
       pool.getConnection((err, connection) => {
         // Get all the passed parameters and values
         let {parameters, values} = getReqParamsFromBody(req);
-
         // Convert the arrays to comma-separated values to fit SQL syntax
         let sql = \`${query}
           (\${parameters.join(", ")})
           VALUES (\${values.join(", ")});\`;
-
         if (err) {
           logger.error("Could not connect to SQL Database!", err);
           res.end(err);
