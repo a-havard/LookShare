@@ -1,5 +1,5 @@
 # LookShare
-## Tuesday Lab Group 1
+## Tuesday Night Lab Group 1
 #### A sample project using docker-compose with Node and React.JS containers.
 #### Also uses a MySQL DBaaS like AWS RDS or GCloud CloudSQL.
 #### This project is meant to give you an understanding of how to formulate your docker development environment for developing web apps using React.JS, Node.JS, and a cloud SQL DBaaS like AWS RDS.
