@@ -265,10 +265,14 @@ useEffect(() => {
         vertical: 'top',
         horizontal: 'center',
       }}
+      PaperProps={{
+        style: { width: '20%',
+        height:'70vh'},
+        }}
     >
         <ul className="list-group">
         {
-            following.map((x, i) => <div><a href={'/profile/'+x.userId}><button onClick={()=>{console.log(x)}}>{x.userId }</button></a><br/></div>
+            following.map((x, i) => <Grid container><Grid item xs={5}><a href={'/profile/'+x.userId}><button onClick={()=>{console.log(x)}}>{x.userId }</button></a></Grid><Grid item xs={2}><button>Unfollow</button></Grid></Grid>
          )
         }
      </ul>
