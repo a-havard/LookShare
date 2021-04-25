@@ -93,11 +93,25 @@ const useStyles = makeStyles((theme) => ({
   }))
 const Post=props=>{
     let ratings=[1,2,3,4,5,6,7,8,9,10];
+    let [accountData,setAccountData]=useState({
+        username:'',
+        accountId:-1
+
+    })
     let [formData, setFormData]=useState({
         name: '',
         rating: '',
         comment:''
     });
+    useEffect(()=> {
+        if(accountData.accountId==-1)
+    conn.get("/accounts/"+props.post.authorId,{params:{loggedInId : localStorage.loggedInId}})
+    .then((res) => {setAccountData({
+        username:res.data.data.username,
+        accountId:res.data.data.userId
+    })})
+console.log(accountData)});
+    
 
     console.log(props);
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -139,6 +153,7 @@ const Post=props=>{
         height:'70vh'},
         }}
       >
+          <a href={'/profile/'+accountData.accountId}><button>{accountData.username}</button></a>
           <ShowImg className={classes.popoverPic}val={props.post.photo}/>
           <Grid container  maxWidth="80vw" className={classes.grid} spacing={2}>
             
