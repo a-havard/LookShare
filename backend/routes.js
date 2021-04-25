@@ -375,8 +375,10 @@ module.exports = function routes(app, logger) {
           "message": "Not a valid request! Check API Schema!"
         });
       }
+      let {parameters, values} = getReqParamsFromBody(req);
 
       // Add comment to database
+      console.log(parameters);
         let sql = `INSERT INTO Comments(${parameters.join(", ")})
                       VALUES(${values.join(", ")});`;
 

@@ -174,26 +174,35 @@ const Post=props=>{
             
           </Grid>
          
-        
+          <Grid item xs={12}>
+                  <form>
+                  <label htmlFor="comment">Comment</label>
+                    <textarea
+                        id="comment"
+                       name="comment"
+                       value={formData.comment}
+                       onChange={event => setFormData({comment: event.target.value})}
+                       className="form-control"/>
+                       <button
+                    type="button"
+                    className="btn btn-primary btn-block"
+                    onClick={ () => onAddClick() }> submit</button>
+                  </form>
+                  </Grid>
       </Popover>
       </Card>)
       
     function onAddClick(){
         let rating={
             authorId: props.post.authorId,
-            parentPostId:props.post.parentPostId,
+            parentPostId:props.post.postId,
+            comment:formData.comment,
             parentCommentId:null,
             isRepost:false,
             restricted:false
         }
-        conn.post('/comments/comment',{
-            authorId: props.post.authorId,
-            parentPostId:null,
-            parentCommentId:null,
-            comment: formData.comment,
-            isRepost:false,
-            restricted:false
-        }).then((res)=>console.log(res));
+        PostAPIs.postComment(rating)
+            .then((res)=>console.log(res));
     }  
 
 

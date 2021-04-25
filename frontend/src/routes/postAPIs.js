@@ -13,7 +13,19 @@ class PostAPIs {
         })
     });
   }*/
-
+  static postComment(comment){
+    console.log(comment);
+    return new Promise((resolve, reject) => {
+      conn.post("/comments/comment", comment)
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((error) => {
+          reject(error);
+        })
+    });
+  };
+  
   static getAccountPosts(accountId) {
     return new Promise((resolve, reject) => {
       conn.get("/posts/author", accountId)
