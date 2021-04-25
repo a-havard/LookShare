@@ -16,7 +16,7 @@ import CardActionArea from '@material-ui/core/CardActionArea';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
-import { Popover } from '@material-ui/core'
+import { CardHeader, Popover } from '@material-ui/core'
 import PostAPIs from '../routes/postAPIs';
 import Profile from '../routes/profile';
 import { matchPath, useParams } from 'react-router';
@@ -98,18 +98,25 @@ const Post=props=>{
         accountId:-1
 
     })
+    let [comments, setComments]=useState([]);
     let [formData, setFormData]=useState({
         name: '',
         rating: '',
         comment:''
     });
     useEffect(()=> {
-        if(accountData.accountId==-1)
+        if(accountData.accountId==-1){
     conn.get("/accounts/"+props.post.authorId,{params:{loggedInId : localStorage.loggedInId}})
     .then((res) => {setAccountData({
         username:res.data.data.username,
         accountId:res.data.data.userId
     })})
+    conn.get("/comments/posts/"+props.post.postId)
+    .then((res)=>{
+        setComments(res.data.data);
+
+    })
+}
 console.log(accountData)});
     
 
@@ -204,6 +211,27 @@ console.log(accountData)});
                     onClick={ () => onAddClick() }> submit</button>
                   </form>
                   </Grid>
+                  <ul className="list-group">
+        <Grid item xs={12}>
+            <ul>
+        <li className="list-group-item">comments</li>
+        {
+            (!comments.length) &&
+                <li className="list-group-item">No Comments.</li>
+        }
+        {
+            comments.map((x, i) =>
+                <li className="list-group-item" key={ i }><Card>
+                   
+                    <CardContent>
+                        <h2><a href={"/profile/"+x.authorId}>username</a></h2>
+                        <Typography>{x.comment}</Typography>
+                    </CardContent>
+                    </Card></li>)
+        }
+        </ul>
+        </Grid>
+    </ul>
       </Popover>
       </Card>)
       
