@@ -23,7 +23,8 @@ import { matchPath, useParams } from 'react-router';
 import Axios from 'axios';
 import Post from './Post';
 
-import {conn} from '../routes/config'
+import { conn } from '../routes/config'
+import Header from './NavBar.js'
 
 const useStyles = makeStyles((theme) => ({
     profilepicgrid:{
@@ -625,7 +626,8 @@ useEffect(() => {
     setAnchorEl(event.currentTarget);
    }
     return(
-      <>
+        <>
+            <Header/>
       <h1> EXPLORE</h1>
      <FormRow className={classes.postsGrid}/>
      </>

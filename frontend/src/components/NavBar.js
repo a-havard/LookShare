@@ -19,6 +19,8 @@ import CardMedia from '@material-ui/core/CardMedia';
 import { Popover } from '@material-ui/core'
 import { AppBar, Toolbar, IconButton, List, ListItem, ListItemText } from "@material-ui/core"
 import { Home } from "@material-ui/icons"
+import UserSearch from './UserSearch.js'
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles({
     navDisplayFlex: {
@@ -32,16 +34,19 @@ const useStyles = makeStyles({
     }
 });
 
+
+
 const navLinks = [
     { title: `Explore`, path: `/explore` },
     { title: `My Profile`, path: `/profile` },
 ]
 const Header = () => {
+    const history = useHistory();
     const classes = useStyles();
     return (
         <AppBar position="static">
             <Toolbar>
-                <IconButton edge="start" color="inherit" aria-label="home">
+                <IconButton edge="start" color="inherit" aria-label="home" onClick={() => history.push('/explore')}>
                     <Home fontSize="large" />
                 </IconButton>
                 {/* Add code */}
@@ -60,6 +65,7 @@ const Header = () => {
                             <ListItemText primary={'My Profile'} />
                         </ListItem>
                     </a>
+                <UserSearch/>
                 </List>
                 {/* Add code end */}
             </Toolbar>
