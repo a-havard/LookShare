@@ -959,6 +959,37 @@ module.exports = function routes(app, logger) {
 
   }); 
 
+  app.delete('/posts/:postId', (req, res) => {
+    pool.getConnection((err, connection) => {
+      if (err) {
+        connection.release();
+        logger.error("Could not connect to the database!", err);
+        return res.status(400).json({
+          "data": -1,
+          "message": "Could not connect to the database!"
+        });
+      }
+
+      let postId = req.params.postId;
+      let sql = `DELETE FROM Posts WHERE postId = ${postId}`;
+      connection.query(sql, (err, rows, fields) => {
+        if (err) {
+          connection.release();
+          logger.error("Could not connect to the database!", err);
+          return res.status(400).json({
+            "data": -1,
+            "message": "Could not connect to the database!"
+          });
+        }
+
+        connection.release();
+        res.status(200).json({
+          "data": rows.affectedRows,
+          "message": "Complete!"
+        });
+      });
+    });
+  })
 }
 
 // Sends queries back, whether successful or failure
