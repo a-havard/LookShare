@@ -884,7 +884,7 @@ module.exports = function routes(app, logger) {
         });
       }
 
-      let validInformation = requireBodyParams(req, ["leaderId", "followerId"]);
+      let validInformation = requireQueryParams(req, ["leaderId", "followerId"]);
       if (!validInformation) {
         connection.release();
         return res.status(400).json({
@@ -893,8 +893,8 @@ module.exports = function routes(app, logger) {
         });
       }
       
-      let leaderId = req.body.leaderId;
-      let followerId = req.body.followerId;
+      let leaderId = req.query.leaderId;
+      let followerId = req.query.followerId;
       let sql = `DELETE FROM Followers WHERE leaderId = ${leaderId} AND followerId = ${followerId}`;
       connection.query(sql, (err, rows, fields) => {
         if (err) {
