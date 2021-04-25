@@ -412,7 +412,7 @@ module.exports = function routes(app, logger) {
   }); 
 
 
-  app.get('/accounts/:accountId', async(req, res) => {
+  /*app.get('/accounts/:accountId', async(req, res) => {
     pool.getConnection((err, connection) => {
       if (err) {
         logger.error("Could not connect to the database!", err);
@@ -477,6 +477,159 @@ module.exports = function routes(app, logger) {
           });
         } else {
           sql = `SELECT firstName, lastName, bio, bioLink, username FROM Accounts WHERE userId = "${accountId}"`;
+          connection.query(sql, (err, rows, fields) => {
+            if (err) {
+              connection.release();
+              logger.error("Could not connect to the database!", err);
+              return res.status(400).json({
+                "data": -1,
+                "message": "Could not connect to the database!"
+              }); 
+            }
+
+            let returnValue = rows[0];
+            sql = `SELECT followerId as userId, firstName, lastName, username FROM Followers
+                    INNER JOIN Accounts
+                    ON userId = followerId
+                    WHERE leaderId = "${accountId}"`;
+            connection.query(sql, (err, rows, fields) => {
+              if (err) {
+                connection.release();
+                logger.error("Could not connect to the database!", err);
+                return res.status(400).json({
+                  "data": -1,
+                  "message": "Could not connect to the database!"
+                }); 
+              }
+
+              returnValue.followers = rows;
+              sql = `SELECT leaderId as userId, firstName, lastName, username FROM Followers
+                      INNER JOIN Accounts
+                      ON userId = leaderId
+                      WHERE followerId = "${accountId}"`;
+              connection.query(sql, (err, rows, fields) => {
+                if (err) {
+                  connection.release();
+                  logger.error("Could not connect to the database!", err);
+                  return res.status(400).json({
+                    "data": -1,
+                    "message": "Could not connect to the database!"
+                  }); 
+                }
+
+                returnValue.following = rows;
+                connection.release();
+                return res.status(200).json({
+                  "data": returnValue,
+                  "message": "Returning data for account!"
+                })
+              })
+            })
+          })
+        }
+      });
+    });
+  })*/
+  app.get('/accounts/:accountId', async(req, res) => {
+    pool.getConnection((err, connection) => {
+      if (err) {
+        logger.error("Could not connect to the database!", err);
+        return res.status(400).json({
+          "data": -1,
+          "message": "Could not connect to the database!"
+        });
+      }
+
+      let validInformation = requireQueryParams(req, ["loggedInId"]);
+      if (!validInformation) {
+        connection.release();
+        return res.status(200).json({
+          "data": -1,
+          "message": "Not a valid request! Need loggedInId in header!"
+        });
+      }
+
+      let loggedInId = typeof req.query.loggedInId === "string" ? JSON.parse(req.query.loggedInId) : req.query.loggedInId;
+      let accountId = typeof req.params.accountId === "string" ? JSON.parse(req.params.accountId) : req.params.accountId;
+      let sql = `SELECT private FROM Accounts WHERE userId = "${accountId}"`;
+
+      connection.query(sql, (err, rows, fields) => {
+        if (err) {
+          connection.release();
+          logger.error("Could not connect to the database!", err);
+          return res.status(400).json({
+            "data": -1,
+            "message": "Could not connect to the database!"
+          });
+        }
+
+        let matched = rows.length > 0;
+        if (!matched) {
+          connection.release();
+          logger.info(`Attempt to access account id #${accountId} which does not exist!`)
+          return res.status(200).json({
+            "data": [],
+            "message": `No matching account with id ${accountId}!`
+          })
+        }
+
+        let private = rows[0].private;
+
+        if (loggedInId !== accountId && private) {
+          sql = `SELECT firstName, lastName, username, userId FROM Accounts WHERE userId = "${accountId}"`;
+          connection.query(sql, (err, rows, fields) => {
+            if (err) {
+              connection.release();
+              logger.error("Could not connect to the database!", err);
+              return res.status(400).json({
+                "data": -1,
+                "message": "Could not connect to the database!"
+              }); 
+            }
+
+            let returnValue = rows[0];
+            sql = `SELECT followerId as userId, firstName, lastName, username FROM Followers
+                    INNER JOIN Accounts
+                    ON userId = followerId
+                    WHERE leaderId = "${accountId}"`;
+            connection.query(sql, (err, rows, fields) => {
+              if (err) {
+                returnValue.followers = 9;
+                connection.release();
+                logger.error("Could not connect to the database!", err);
+                return res.status(400).json({
+                  "data": -1,
+                  "message": "Could not connect to the database!"
+                }); 
+              }
+
+              returnValue.followers = rows;
+
+              sql = `SELECT leaderId as userId, firstName, lastName, username FROM Followers
+                      INNER JOIN Accounts
+                      ON userId = leaderId
+                      WHERE followerId = "${accountId}"`;
+              connection.query(sql, (err, rows, fields) => {
+                if (err) {
+                  connection.release();
+                  logger.error("Could not connect to the database!", err);
+                  return res.status(400).json({
+                    "data": -1,
+                    "message": "Could not connect to the database!"
+                  }); 
+                }
+
+                returnValue.following = rows;
+                connection.release();
+                return res.status(200).json({
+                  "data": returnValue,
+                  "message": "Returning data for account!"
+                })
+              })
+            })
+          });
+        } else {
+          sql = `SELECT firstName, lastName, bio, bioLink, username, userId FROM Accounts WHERE userId = "${accountId}"`;
           connection.query(sql, (err, rows, fields) => {
             if (err) {
               connection.release();
@@ -605,7 +758,32 @@ module.exports = function routes(app, logger) {
   app.post('/reactions/reaction', postAPI("INSERT INTO Reactions"));         
 
 
-
+  app.get('/posts', async(req, res) => {
+    pool.getConnection(function (err, connection){
+      if (err) {
+        logger.error("Could not connect to the database!", err);
+        return res.status(400).json({
+          "data": -1,
+          "message": "Could not connect to the database!"
+        });
+      } else {
+        connection.query(`SELECT * FROM Posts`, function (err, rows, fields) {
+          connection.release();
+          if (err) {
+            logger.error("Error while fetching values: \n", err);
+            res.status(400).json({
+              "data": [],
+              "error": "Error obtaining values"
+            })
+          } else {
+            res.status(200).json({
+              "data": rows
+            });
+          }
+        });
+      }
+    });
+  });
   //Get Posts with Positive Reactions
   app.get('/posts/pos', async(req, res) => {
     pool.getConnection(function (err, connection){
