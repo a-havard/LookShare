@@ -381,8 +381,12 @@ module.exports = function routes(app, logger) {
       console.log(parameters);
         let sql = `INSERT INTO Comments(${parameters.join(", ")})
                       VALUES(${values.join(", ")});`;
+        if(values[3]==null){
+          sql = `INSERT INTO Comments(${parameters.join(", ")})
+                      VALUES(${values[0]},${values[1]},${values[2]},null,${values[4]},${values[5]});`;
+        }
 
-
+        console.log(sql);
       //throw an error if comment could not be added to database
       connection.query(sql, (err, rows, fields) => {
         if (err) {
@@ -393,16 +397,17 @@ module.exports = function routes(app, logger) {
             "message": "Failed to post the comment!"
           });
         }
-
+        connection.release();
+        logger.info(`Comment Posted!`);
+        return res.status(200).json({
+          "data": 0,
+          "message": "Successfully posted comment!"
+  
+        });
       });
 
       //comment posted successfully
-      logger.info(`Comment Posted!`);
-      return res.status(200).json({
-        "data": 0,
-        "message": "Successfully posted comment!"
-
-      });
+      
     });
   }); 
 
