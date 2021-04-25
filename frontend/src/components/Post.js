@@ -87,7 +87,29 @@ const useStyles = makeStyles((theme) => ({
     },
     popoverPic:{
         width:'40vw'
+    },
+    lookDifficult:{
+      backgroundColor: '#dce0fa',
+    },
+    lookTimes:{
+      backgroundColor: '#dce0fa',
+    },
+    lookType:{
+      backgroundColor: '#dce0fa',
+    },
+    overlay: {
+      backgroundColor:'#dce0fa',
+    },
+    commentGrid: {
+      backgroundColor:'#dce0fa',
+    },
+    lookFull: {
+      //backgroundColor: 'lightblue'
+    },
+    lookProducts : {
+      backgroundColor:'#dce0fa',
     }
+
 
     
   }))
@@ -162,9 +184,9 @@ console.log(accountData)});
       >
           <a href={'/profile/'+accountData.accountId}><button>{accountData.username}</button></a>
           <ShowImg className={classes.popoverPic}val={props.post.photo}/>
-          <Grid container  maxWidth="80vw" className={classes.grid} spacing={2}>
+          <Grid container  maxWidth="80vw" className={classes.lookFull} spacing={2}>
             
-              <Grid item xs={12}>
+              <Grid item xs={12} className={classes.lookInstructions}>
                   <p>instructions</p>
                 <ol>
                 {
@@ -174,16 +196,16 @@ console.log(accountData)});
                 }
                 </ol>
               </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={4} className= {classes.lookType}>
                 <p>Type of look:{props.post.lookKind}</p>
               </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={4} className= {classes.lookTimes}>
                 <p>Time for this look: {props.post.lookTime} minutes</p>
               </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={4} className = {classes.lookDifficult}>
                 <p>Difficulty: {props.post.lookDifficulty}/10</p>
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} className = {classes.lookProducts}>
               <p>products</p>
                 <ul>
                 {
@@ -196,7 +218,7 @@ console.log(accountData)});
             
           </Grid>
          
-          <Grid item xs={12}>
+          <Grid item xs={12} className = {classes.commentGrid}>
                   <form>
                   <label htmlFor="comment">Comment</label>
                     <textarea
