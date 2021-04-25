@@ -440,7 +440,7 @@ module.exports = function routes(app, logger) {
         let private = rows[0].private;
 
         if (loggedInId !== accountId && private) {
-          sql = `SELECT firstName, lastName FROM Accounts WHERE userId = "${accountId}"`;
+          sql = `SELECT firstName, lastName, username FROM Accounts WHERE userId = "${accountId}"`;
           connection.query(sql, (err, rows, fields) => {
             if (err) {
               connection.release();

@@ -15,13 +15,15 @@ class Accounts {
   }
 
   static getAccount(accountData) {
+    console.log("get");
     return new Promise((resolve, reject) => {
       conn.post("/accounts/login", accountData)
         .then((res) => {
+          console.log(res);
           resolve(res);
         })
-        .catch((res) => {
-          reject(res);
+        .catch((error) => {
+          reject(error);
         })
     });
   };

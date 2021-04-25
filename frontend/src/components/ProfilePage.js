@@ -21,6 +21,7 @@ import PostAPIs from '../routes/postAPIs';
 import Profile from '../routes/profile';
 import { matchPath, useParams } from 'react-router';
 import Axios from 'axios';
+import Post from './Post';
 
 import {conn} from '../routes/config'
 
@@ -34,6 +35,7 @@ const useStyles = makeStyles((theme) => ({
     },
     grid:{
       marginTop: theme.spacing(0),
+      marginLeft: theme.spacing(1)
       
     },
     logo:{
@@ -69,48 +71,78 @@ const useStyles = makeStyles((theme) => ({
     },
     forms:{
       width:'100%',
-      height:'100%'
-      
+      height:'100%',
+      border: 10
       
     },
+    formControl:{
+     
+      width:'85%'
+    },
+    formButton:{
+     
+      width:'85%'
+    },
+    bioLink:{
+      width:'85%'
+    },
+    bioText:{
+      width:'85%',
+      height:'75%'
+    },
+    bioInfo:{
+      width:'80%'
+    },
+    bio:{
+      width:'80%',
+      marginLeft:'10%'
+    },
+    postsGrid:{width:'80%',
+    marginLeft:'10%'}
     
   }))
 
  
  
 var loaded=false;
-const ProfilePage =(props)=>{
+const ProfilePage =()=>{
+  console.log("test");
   const [anchorEl, setAnchorEl] = React.useState(null);
   //const [params,setParams]=React.useState(null);
 var par=useParams();
   let fileInput = React.createRef(); 
   let temp;
   let [username,setUsername]=useState(null);
-  let [bio,setBio]=useState('');
+  let [bio,setBio]=useState('This account is private!');
   let [bioLink,setBioLink]=useState('');
   let [followers,setFollowers]=useState([]);
   let [following,setFollowing]=useState([]);
   let [posts,setPosts]=useState([]);
   let [popOpen,setPopOpen]=useState();
   let [addingPost,setPosting]=useState();
+  let [selectedPost,setSelectedPost]=useState();
   const [showFollowerList,setSFL]=useState();
+  const [showFollowingList,setSFLL]=useState();
   const [dataUri, setDataUri] = useState('');
   const [values, setValues] = useState([]);
 
  
 useEffect(() => {
-  //console.log(par);
+  console.log(par);
   var id=parseInt(par.id);
+  var logged=''+localStorage.getItem('loggedInId');
+  console.log(logged);
   if (!username) {
    
-    conn.get("/accounts/"+par.id,{params:{loggedInId : props.loggedInId}})
+    conn.get("/accounts/"+par.id,{params:{loggedInId : logged}})
     .then((res) => {
-        //console.log(res.data);
+        console.log(res.data);
 
-   
         setUsername(''+res.data.data.username);
-        setBio(''+res.data.data.bio);
-        setBioLink(''+res.data.data.bioLink);
+        if(res.data.data.bio)
+          setBio(''+res.data.data.bio);
+        if(res.data.data.bioLink)
+          setBioLink(''+res.data.data.bioLink);
         if(res.data.data.followers)
         setFollowers(res.data.data.followers);
         if(res.data.data.following)
@@ -122,7 +154,7 @@ useEffect(() => {
       .catch((res) => {
       
       })
-  conn.get("/posts/authors/"+par.id,{params:{loggedInId : props.loggedInId}})
+  conn.get("/posts/authors/"+par.id,{params:{loggedInId : localStorage.getItem('loggedInId')}})
     .then((res) => {
       //console.log(res.data.data);
       setPosts(res.data.data);
@@ -143,6 +175,9 @@ useEffect(() => {
  function openFollowers(){
    setSFL(true);
  }
+ function openFollowing(){
+  setSFLL(true);
+}
   function getPictures(){
     console.log(posts);
     let pics=[];
@@ -171,7 +206,7 @@ useEffect(() => {
     //let numPictures
   function FollowerList(){
     const handleClick = (event) => {
-      setAnchorEl(event.currentTarget);
+      //setAnchorEl(event.currentTarget);
       console.log("click");
       if(!showFollowerList)
         setSFL(true);
@@ -186,7 +221,7 @@ useEffect(() => {
     const open = showFollowerList;
     const id = open ? 'simple-popover' : undefined;
     let pop=<div><Button aria-describedby={id} variant="contained" color="primary" onClick={handleClick}>
-    Followers: {followers.length}
+    Followers:{followers.length}
   </Button>
     <Popover
       id={id}
@@ -194,18 +229,71 @@ useEffect(() => {
       anchorEl={anchorEl}
       onClose={handleClose}
       anchorOrigin={{
-        vertical: 'center',
+        vertical: 'bottom',
         horizontal: 'center',
       }}
       transformOrigin={{
         vertical: 'top',
         horizontal: 'center',
       }}
+      PaperProps={{
+        style: { width: '20%',
+        height:'70vh'},
+        }}
     >
         <ul className="list-group">
         {
-            followers.map((x, i) => <li className="list-group-item" key={ i }>
-          <Link to={ '/'}>{x.firstName }</Link></li>)
+            followers.map((x, i) => <div><a href={'/profile/'+x.userId}><button onClick={()=>{console.log(x)}}>{x.username }</button></a><br/></div>
+         )
+        }
+     </ul>
+    </Popover></div>;
+    return (
+      pop
+    ); 
+    
+  }
+  function FollowingList(){
+    const handleClick = (event) => {
+      //setAnchorEl(event.currentTarget);
+      console.log("click");
+      if(!showFollowingList)
+        setSFLL(true);
+      
+    };
+  
+    const handleClose = () => {
+      setAnchorEl(null);
+      setSFLL(false);
+    };
+  
+    const open = showFollowingList;
+    const id = open ? 'simple-popover' : undefined;
+    let pop=<div><Button aria-describedby={id} variant="contained" color="primary" onClick={handleClick}>
+    Following: {following.length}
+  </Button>
+    <Popover
+      id={id}
+      open={showFollowingList}
+      anchorEl={anchorEl}
+      onClose={handleClose}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'center',
+      }}
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'center',
+      }}
+      PaperProps={{
+        style: { width: '20%',
+        height:'70vh'},
+        }}
+    >
+        <ul className="list-group">
+        {
+            following.map((x, i) => <Grid container><Grid item xs={5}><a href={'/profile/'+x.userId}><button onClick={()=>{console.log(x)}}>{x.userId }</button></a></Grid><Grid item xs={2}><button>Unfollow</button></Grid></Grid>
+         )
         }
      </ul>
     </Popover></div>;
@@ -222,12 +310,12 @@ useEffect(() => {
     .then(setPopOpen(false));
   }
   function BioForm(){
+    
      let temp='';
      let temp2='';
-    const [anchorEl, setAnchorEl] = React.useState(null);
-
+    
     const handleClick = (event) => {
-      setAnchorEl(event.currentTarget);
+      //setAnchorEl(event.currentTarget);
       if(!popOpen)
         setPopOpen(true);
       
@@ -256,6 +344,10 @@ useEffect(() => {
         vertical: 'top',
         horizontal: 'center',
       }}
+      PaperProps={{
+        style: { width: '70%',
+        height:'70vh'},
+        }}
     >
       <form>
       <label for="link">Link</label>
@@ -263,56 +355,61 @@ useEffect(() => {
                         type="text"
                         name="link"
                         id="link"
-                        className="form-control"
+                        className={classes.bioLink}
                         
                         onChange={ event => {temp2=( event.target.value )} } 
                         />
     <br/>
-    <label for="Bio">Bio</label>
-     <input
-                        type="text"
+    <label for="Bio">Bio</label><br/>
+     <textarea
+                        
                         name="Bio"
                         id="Bio"
-                        className="form-control"
-                        
+                        className={classes.bioText}
+                        rows={10}
                         onChange={ event => {temp=( event.target.value )} } 
                         />
                         <br/>
       <button
                             type="button"
-                            className="btn btn-success btn-block"
+                            className={classes.formButton}
                             onClick={ () => updateBio(temp,temp2) }>
                             Add
                         </button>            
      </form>
     </Popover></div>;
+    if(par.id!=localStorage.getItem('loggedInId'))
+      return <></>;
     return (
       pop
     );
   }
 
-  function addPost (file){
+  function addPost (formData){
     //console.log(file);
     let reader = new FileReader();
-    let inFile = file;
-
+    let inFile = formData.file;
+    if(!inFile){
+      alert("No Photo");
+      return;
+    }
     //console.log(inFile);
     //console.log("add Post");
     reader.onloadend = () => {
       console.log(reader.result);
       let t= {authorId: par.id,
-        instructions: "There's literally nothing to do because there's nothing there!",
-        lookDifficulty: 1,
-        lookKind: "invisible",
-        lookTime: 0,
+        instructions: formData.instructions,
+        lookDifficulty: formData.lookDifficulty,
+        lookKind: formData.lookKind,
+        lookTime: formData.lookTime,
         photo: reader.result,
-        products: "No products",
+        products: formData.products,
        }
         
       
         conn.post('/posts/post',t)
           .then((res)=>{console.log(res)
-            conn.get("/posts/authors/"+par.id,{params:{loggedInId : props.loggedInId}})
+            conn.get("/posts/authors/"+par.id,{params:{loggedInId : localStorage.getItem('loggedInId')}})
           .then((res) => {
             //console.log(res.data.data);
              t=res.data.data;
@@ -331,7 +428,7 @@ useEffect(() => {
     
     
     const handleClick = (event) => {
-      setAnchorEl(event.currentTarget);
+      //setAnchorEl(event.currentTarget);
       if(!popOpen)
       setPosting(true);
       
@@ -345,6 +442,8 @@ useEffect(() => {
     Add New Post
   </Button>
     </div>;
+     if(par.id!=localStorage.getItem('loggedInId'))
+     return <></>;
     return (
       pop
     );
@@ -356,16 +455,26 @@ useEffect(() => {
     
   };
     function PostingPopover(){
-      let file='';
+      /*let file='';
       let instructionlist='';
       let lookkind='';
-      let difficulty=0;
+      let difficulty=0;*/
+      let formData= {
+        instructions: "",
+        lookDifficulty: 1,
+        lookKind: "",
+        lookTime: 0,
+        file: '',
+        products: "",
+       };
     
-      let ratings=[1,2,3,4,5,6,7,8,9];
+      let ratings=[1,2,3,4,5,6,7,8,9,10];
     const handleClose = () => {
       setAnchorEl(null);
       setPosting(false);
     };
+    if(par.id!=localStorage.getItem('loggedInId'))
+    return <></>;
       return <Popover 
       className={classes.overlay}
       
@@ -376,24 +485,42 @@ useEffect(() => {
       onClose={handleClose}
       anchorOrigin={{
         vertical: 'top',
-        horizontal: 'left'
+        horizontal: 'center'
       }}
-     
+      transformOrigin={{
+        horizontal: 'center'
+      }}
+      
+      PaperProps={{
+      style: { width: '70%',
+      height:'70vh'},
+      }}
     >
-     
+     <h1>Please Enter the information for your new post</h1>
      <form className={classes.forms}>
-      <Grid>
-       
+     <Grid container  maxWidth="80vw" className={classes.grid} spacing={2}>
+      <Grid item xs={12} >
+        <label for='photo'>Select Photo:   </label><br/>
+      <input
+                        type="file"
+                        name="photo"
+                        id="photo"
+                        className={classes.formControl}
+                        //onChange={handleImageChange}
+                        ref={fileInput}
+                        onChange={ event => {formData.file=( event.target.files[0])} } 
+                    
+                        />
+                        </Grid>
       <Grid item xs={12} >
         <label for='instructions'>Please List Your Instructions:  </label><br/>
-      <input
+      <textarea
                         type="text"
                         name="Instructions"
                         id="instructions"
-                        className="form-control"
-                        //onChange={handleImageChange}
+                        className={classes.formControl}
                         ref={fileInput}
-                        onChange={ event => {instructionlist=( event.target.value)} } 
+                        onChange={ event => {formData.instructions=(event.target.value)} } 
                     
                         />
                         </Grid>
@@ -403,50 +530,68 @@ useEffect(() => {
                         type="text"
                         name="kind"
                         id="kind"
-                        className="form-control"
-                        //onChange={handleImageChange}
+                        className={classes.formControl}
+                        
                         ref={fileInput}
-                        onChange={event => {lookkind=( event.target.value)}} 
+                        onChange={event => {formData.lookKind=( event.target.value)}} 
                     
                         />
                         </Grid>
-        <Grid item xs={5} >
-        <label for='photo'>Look Difficulty:  </label><br/>
-      <select
-                        type="select"
-                        name="photo"
-                        id="Instructions"
-                        className="form-control"
+          <Grid item xs={5} >
+            <label for='products'>Time to do in minutes:  </label><br/>
+              <input
+                        type="number"
+                        min={0}
+                        name="products"
+                        id="products"
+                        className={classes.formControl}
                         //onChange={handleImageChange}
                         ref={fileInput}
-                        onChange={ event => {difficulty=(event.target.value )} } 
+                        onChange={event => {formData.lookTime=( event.target.value)}} 
+                    
+                        />
+                        </Grid>                        
+        <Grid item xs={1} >
+        <label for='difficulty'>Look Difficulty:  </label><br/>
+            <select
+                        type="select"
+                        name="difficulty"
+                        id="difficulty"
+                        className={classes.formControl}
+                    
+                        ref={fileInput}
+                        onChange={ event => {formData.lookDifficulty=(event.target.value )} } 
                     
                         >
                          {
                                     ratings.map((x, i) => <option key={ i }>{ x }</option>)
                                 }</select>
                         </Grid>
+          
+                        
       <Grid item xs={12} >
-        <label for='photo'>Select Photo:   </label><br/>
-      <input
-                        type="file"
-                        name="photo"
-                        id="photo"
-                        className="form-control"
+        <label for='products'>Products:  </label><br/>
+        <textarea
+                      
+                        name="products"
+                        id="products"
+                        className={classes.formControl}
                         //onChange={handleImageChange}
                         ref={fileInput}
-                        onChange={ event => {file=( event.target.files[0])} } 
+                        onChange={event => {formData.products=( event.target.value)}} 
                     
                         />
                         </Grid>
+                        
+     
                         <Grid item xs={12} >
                         <button
                             type="button"
-                            className="btn btn-success btn-block"
-                            onClick={ () => addPost(file) }>
+                            className={classes.formButton}
+                            onClick={ () => addPost(formData) }>
                             Post it
                         </button> 
-                          </Grid>
+                          </Grid>                 
       </Grid>
      
    
@@ -454,6 +599,7 @@ useEffect(() => {
      </form>
     </Popover>
     }
+    
     function ShowImg(val){
       //console.log(val);
       const [pic, setPic] = useState('');
@@ -485,17 +631,10 @@ useEffect(() => {
       let items=[];
       
       
-      return <Grid  item container xs={100} spacing={0} >{
+      return <Grid  item container xs={100} spacing={1} className={classes.postsGrid}>{
         posts.map((x,i)=> 
         <Grid item xs={4} key={ i }>
-          <Card className={classes.root}>
-            <CardActionArea>
-           
-            <CardContent>
-              <ShowImg val={x.photo}/>
-              </CardContent>
-          </CardActionArea>
-          </Card>
+          <Post post={x}/>
           </Grid>)
          
     }</Grid>
@@ -503,17 +642,24 @@ useEffect(() => {
      
      
     }
-   
+   const hc=(event)=>{
+    setAnchorEl(event.currentTarget);
+   }
     return(
       <>
+    
       <PostingPopover/>
-      <Grid container component="main" maxWidth="80vw" className={classes.grid} spacing={2}> 
-       
+     
       <Grid className={classes.logo} item xs={12}>
       
       
       </Grid>
-     
+      
+<Card className={classes.bio}>
+  
+       
+  <CardContent className={classes.bioInfo}>
+  <Grid container component="main" maxWidth="80vw" className={classes.grid} spacing={2}> 
       <Grid className={classes.profilepicgrid } item xs={2} rs={3} spacing={30}>
         <img src="https://via.placeholder.com/150" className={classes.profilePic}></img>
     
@@ -525,11 +671,11 @@ useEffect(() => {
         <Grid item xs={5} >
           <BioForm/>
         </Grid>
-        <Grid item xs={5} rs={1}>
-          <Paper className={classes.paper}><FollowerList/></Paper>
+        <Grid item xs={6} rs={1}>
+          <Paper className={classes.paper} onClick={hc}><FollowerList/></Paper>
         </Grid>
         <Grid item xs={5} rs={1}>
-          <Paper className={classes.paper}>{following.length}</Paper>
+          <Paper className={classes.paper} onClick={hc}><FollowingList/></Paper>
         </Grid>
    
     </Grid>
@@ -538,10 +684,22 @@ useEffect(() => {
    
     <Grid item xs={5} rs={3}>
       
-      <Paper className={classes.paper}><a href={bioLink}>{bioLink}</a><p>{bio}</p></Paper>
+      <Card className={classes.paper} >
+        <CardContent>
+        <p>{bio}</p>
+        <a href={bioLink}>My Link: {bioLink}</a>
+        </CardContent>
+       
+        
+        </Card>
     </Grid>
+    </Grid>
+    </CardContent>
+    
+    </Card>
+    <Grid container component="main" maxWidth="80vw" className={classes.grid} spacing={2}> 
     <Grid item xs={12} rs={2}></Grid>
-    <FormRow/>
+    <FormRow className={classes.postsGrid}/>
     <Grid item xs={12} rs={2}><PostInformationForm/></Grid>
     </Grid>
     
