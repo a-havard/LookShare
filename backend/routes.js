@@ -411,6 +411,37 @@ module.exports = function routes(app, logger) {
     });
   }); 
 
+  //Get Comments from a post
+  app.get('/comments/posts/:postId', async(req, res) => {
+    pool.getConnection(function (err, connection){
+      if (err) {
+        logger.error("Could not connect to the database!", err);
+        return res.status(400).json({
+          "data": -1,
+          "message": "Could not connect to the database!"
+        });
+      } else {
+        let postId = typeof req.params.postId === "string" ? JSON.parse(req.params.postId) : req.params.postId;
+        let sql = `SELECT * FROM Comments WHERE postId = ${postId}`;
+
+        connection.query(sql, function (err, rows, fields) {
+          connection.release();
+          if (err) {
+            logger.error("Error while fetching values: \n", err);
+            res.status(400).json({
+              "data": -1,
+              "error": "Error obtaining values"
+            })
+          } else {
+            res.status(200).json({
+              "data": rows,
+            });
+          }
+        });
+      }
+      return res;
+    });
+  });
 
   app.get('/accounts/:accountId', async(req, res) => {
     pool.getConnection((err, connection) => {
