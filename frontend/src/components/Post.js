@@ -98,18 +98,25 @@ const Post=props=>{
         accountId:-1
 
     })
+    let [comments, setComments]=useState([]);
     let [formData, setFormData]=useState({
         name: '',
         rating: '',
         comment:''
     });
     useEffect(()=> {
-        if(accountData.accountId==-1)
+        if(accountData.accountId==-1){
     conn.get("/accounts/"+props.post.authorId,{params:{loggedInId : localStorage.loggedInId}})
     .then((res) => {setAccountData({
         username:res.data.data.username,
         accountId:res.data.data.userId
     })})
+    conn.get("/comments/posts/"+props.post.postId)
+    .then((res)=>{
+        console.log(res);
+
+    })
+}
 console.log(accountData)});
     
 
