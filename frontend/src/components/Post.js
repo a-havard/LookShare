@@ -246,6 +246,11 @@ console.log(accountData)});
         }
         PostAPIs.postComment(rating)
             .then((res)=>console.log(res));
+        conn.get("/comments/posts/"+props.post.postId)
+            .then((res)=>{
+                setComments(res.data.data);
+        
+            })
     }  
 
 

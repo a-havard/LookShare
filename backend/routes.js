@@ -422,7 +422,7 @@ module.exports = function routes(app, logger) {
         });
       } else {
         let postId = typeof req.params.postId === "string" ? JSON.parse(req.params.postId) : req.params.postId;
-        console.log(postId);
+      
         let sql = `SELECT * FROM Comments WHERE parentPostId = ${postId}`;
 
         connection.query(sql, function (err, rows, fields) {
@@ -436,7 +436,7 @@ module.exports = function routes(app, logger) {
             })
           } else {
             connection.release();
-            console.log(rows);
+            
             res.status(200).json({
               "data": rows,
             });
