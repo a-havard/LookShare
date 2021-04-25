@@ -76,12 +76,17 @@ const useStyles = makeStyles((theme) => ({
       
     },
     formControl:{
-     
+      margin: "3px",
+      border : "0",
+      boxShadow:"0 4px 4px 4px lightgray",
       width:'85%'
     },
     formButton:{
      
-      width:'85%'
+      width:'85%',
+      backgroundColor: "#3f51b5",
+      color: "white",
+      borderRadius: "3px"
     },
     bioLink:{
       width:'85%'
@@ -518,6 +523,8 @@ useEffect(() => {
                         type="text"
                         name="Instructions"
                         id="instructions"
+                        placeholder = "apply makeup to face"
+                        
                         className={classes.formControl}
                         ref={fileInput}
                         onChange={ event => {formData.instructions=(event.target.value)} } 
@@ -544,6 +551,7 @@ useEffect(() => {
                         min={0}
                         name="products"
                         id="products"
+
                         className={classes.formControl}
                         //onChange={handleImageChange}
                         ref={fileInput}
@@ -558,6 +566,7 @@ useEffect(() => {
                         name="difficulty"
                         id="difficulty"
                         className={classes.formControl}
+                        
                     
                         ref={fileInput}
                         onChange={ event => {formData.lookDifficulty=(event.target.value )} } 
@@ -577,6 +586,7 @@ useEffect(() => {
                         id="products"
                         className={classes.formControl}
                         //onChange={handleImageChange}
+                        placehoder = "enter the name and type of products here"
                         ref={fileInput}
                         onChange={event => {formData.products=( event.target.value)}} 
                     
@@ -588,6 +598,7 @@ useEffect(() => {
                         <button
                             type="button"
                             className={classes.formButton}
+                            color = "blue"
                             onClick={ () => addPost(formData) }>
                             Post it
                         </button> 
@@ -672,10 +683,10 @@ useEffect(() => {
           <BioForm/>
         </Grid>
         <Grid item xs={6} rs={1}>
-          <Paper className={classes.paper} onClick={hc}><FollowerList/></Paper>
+          <Paper className={classes.paper} elevation = {0} onClick={hc}><FollowerList/></Paper>
         </Grid>
         <Grid item xs={5} rs={1}>
-          <Paper className={classes.paper} onClick={hc}><FollowingList/></Paper>
+          <Paper className={classes.paper} elevation = {0} onClick={hc}><FollowingList/></Paper>
         </Grid>
    
     </Grid>
@@ -684,7 +695,7 @@ useEffect(() => {
    
     <Grid item xs={5} rs={3}>
       
-      <Card className={classes.paper} >
+      <Card className={classes.paper} elevation = {0} >
         <CardContent>
         <p>{bio}</p>
         <a href={bioLink}>My Link: {bioLink}</a>
