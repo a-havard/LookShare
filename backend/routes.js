@@ -469,11 +469,46 @@ module.exports = function routes(app, logger) {
               }); 
             }
 
-            connection.release();
-            return res.status(200).json({
-              "data": rows[0],
-              "message": "Returning information for private account!"
-            });
+            let returnValue = rows[0];
+            sql = `SELECT followerId as userId, firstName, lastName, username FROM Followers
+                    INNER JOIN Accounts
+                    ON userId = followerId
+                    WHERE leaderId = "${accountId}"`;
+            connection.query(sql, (err, rows, fields) => {
+              if (err) {
+                returnValue.followers = 9;
+                connection.release();
+                logger.error("Could not connect to the database!", err);
+                return res.status(400).json({
+                  "data": -1,
+                  "message": "Could not connect to the database!"
+                }); 
+              }
+
+              returnValue.followers = rows;
+
+              sql = `SELECT leaderId as userId, firstName, lastName, username FROM Followers
+                      INNER JOIN Accounts
+                      ON userId = leaderId
+                      WHERE followerId = "${accountId}"`;
+              connection.query(sql, (err, rows, fields) => {
+                if (err) {
+                  connection.release();
+                  logger.error("Could not connect to the database!", err);
+                  return res.status(400).json({
+                    "data": -1,
+                    "message": "Could not connect to the database!"
+                  }); 
+                }
+
+                returnValue.following = rows;
+                connection.release();
+                return res.status(200).json({
+                  "data": returnValue,
+                  "message": "Returning data for account!"
+                })
+              })
+            })
           });
         } else {
           sql = `SELECT firstName, lastName, bio, bioLink, username FROM Accounts WHERE userId = "${accountId}"`;
