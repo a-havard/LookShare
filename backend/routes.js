@@ -98,6 +98,54 @@ module.exports = function routes(app, logger) {
     });
   });
 
+  app.get('/accountId', (req, res) => {
+    pool.getConnection((err, connection) => {
+      if (err) {
+        logger.error("Could not connecto to the database!", err);
+        return res.status(400).json({ 
+          "data": -1,
+          "message": "Could not connect to the database!"
+        });
+      }
+
+      let validInformation = requireQueryParams(req, ["username"]);
+      if (!validInformation) {
+        connection.release();
+        logger.error("Could not connect to the database!", err);
+        return res.status(200).json({
+          "data": -1,
+          "message": "Need to pass username to API through request body!"
+        });
+      }
+
+      let username = req.query.username;
+      let sql = `SELECT userId FROM Accounts WHERE username = "${username}"`;
+      connection.query(sql, (err, rows, fields) => {
+        if (err) {
+          connection.release();
+          logger.error("Could not connect to the database!", err);
+          return res.status(200).json({
+            "data": -1,
+            "message": "Need to pass username to API through request body!"
+          });
+        }
+
+        connection.release();
+        if (rows.length === 0) {
+          return res.status(200).json({
+            "data": -1,
+            "message": "No user exists with that username!"
+          });
+        }
+
+        return res.status(200).json({
+          "data": rows[0].userId,
+          "message": "Found a userId for that username!"
+        })
+      })
+    });
+  });
+
   app.post('/accounts', async (req, res) => {
     pool.getConnection((err, connection) => {
       // Try to connect to database, return an error if cannot
@@ -409,7 +457,7 @@ module.exports = function routes(app, logger) {
       //comment posted successfully
       
     });
-  }); 
+  });
 
   //Get Comments from a post
   app.get('/comments/posts/:postId', async(req, res) => {
@@ -422,21 +470,22 @@ module.exports = function routes(app, logger) {
         });
       } else {
         let postId = typeof req.params.postId === "string" ? JSON.parse(req.params.postId) : req.params.postId;
+
       
         let sql = `SELECT * FROM Comments WHERE parentPostId = ${postId}`;
 
         connection.query(sql, function (err, rows, fields) {
-          
+          connection.release();
           if (err) {
-            connection.release();
             logger.error("Error while fetching values: \n", err);
             res.status(400).json({
               "data": -1,
               "error": "Error obtaining values"
             })
           } else {
+
             connection.release();
-            
+
             res.status(200).json({
               "data": rows,
             });
@@ -915,6 +964,69 @@ module.exports = function routes(app, logger) {
 
   }); 
 
+  app.delete('/posts/:postId', (req, res) => {
+    pool.getConnection((err, connection) => {
+      if (err) {
+        connection.release();
+        logger.error("Could not connect to the database!", err);
+        return res.status(400).json({
+          "data": -1,
+          "message": "Could not connect to the database!"
+        });
+      }
+
+      let postId = req.params.postId;
+      let sql = `DELETE FROM Posts WHERE postId = ${postId}`;
+      connection.query(sql, (err, rows, fields) => {
+        if (err) {
+          connection.release();
+          logger.error("Could not connect to the database!", err);
+          return res.status(400).json({
+            "data": -1,
+            "message": "Could not connect to the database!"
+          });
+        }
+
+        connection.release();
+        res.status(200).json({
+          "data": rows.affectedRows,
+          "message": "Complete!"
+        });
+      });
+    });
+  });
+
+  app.delete('/comments/:commentId', (req, res) => {
+    pool.getConnection((err, connection) => {
+      if (err) {
+        connection.release();
+        logger.error("Could not connect to the database!", err);
+        return res.status(400).json({
+          "data": -1,
+          "message": "Could not connect to the database!"
+        });
+      }
+
+      let commentId = req.params.commentId;
+      let sql = `DELETE FROM Comments WHERE postId = ${commentId}`;
+      connection.query(sql, (err, rows, fields) => {
+        if (err) {
+          connection.release();
+          logger.error("Could not connect to the database!", err);
+          return res.status(400).json({
+            "data": -1,
+            "message": "Could not connect to the database!"
+          });
+        }
+
+        connection.release();
+        res.status(200).json({
+          "data": rows.affectedRows,
+          "message": "Complete!"
+        });
+      });
+    }); 
+  });
 }
 
 // Sends queries back, whether successful or failure
