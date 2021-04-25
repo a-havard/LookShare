@@ -92,6 +92,8 @@ const useStyles = makeStyles((theme) => ({
     
   }))
 const Post=props=>{
+    let instructions=[];
+    let products=[];
     let ratings=[1,2,3,4,5,6,7,8,9,10];
     let [accountData,setAccountData]=useState({
         username:'',
@@ -105,6 +107,8 @@ const Post=props=>{
         comment:''
     });
     useEffect(()=> {
+         instructions=props.post.instructions.split('\n');
+         products=props.post.products.split('\n');
         if(accountData.accountId==-1){
     conn.get("/accounts/"+props.post.authorId,{params:{loggedInId : localStorage.loggedInId}})
     .then((res) => {setAccountData({
@@ -124,8 +128,7 @@ console.log(accountData)});
     const [anchorEl, setAnchorEl] = React.useState(null);
     const classes = useStyles();
     let [openPost,setOpen]=useState();
-    let instructions=props.post.instructions.split('\n');
-    let products=props.post.products.split('\n');
+  
       const handleClose = () => {
         setAnchorEl(null);
         setOpen(false);

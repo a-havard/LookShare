@@ -470,9 +470,7 @@ module.exports = function routes(app, logger) {
         });
       } else {
         let postId = typeof req.params.postId === "string" ? JSON.parse(req.params.postId) : req.params.postId;
-
-      
-        let sql = `SELECT * FROM Comments WHERE parentPostId = ${postId}`;
+        let sql = `SELECT * FROM Comments WHERE postId = ${postId}`;
 
         connection.query(sql, function (err, rows, fields) {
           connection.release();
@@ -483,9 +481,6 @@ module.exports = function routes(app, logger) {
               "error": "Error obtaining values"
             })
           } else {
-
-            connection.release();
-
             res.status(200).json({
               "data": rows,
             });
@@ -876,6 +871,49 @@ module.exports = function routes(app, logger) {
 
   app.post('/reactions/reaction', postAPI("INSERT INTO Reactions"));         
 
+  app.post('/followers/follow', postAPI("INSERT INTO Followers"));         
+
+  app.delete('/followers/unfollow', (req, res) => {
+    pool.getConnection((err, connection) => {
+      if (err) {
+        connection.release();
+        logger.error("Could not connect to the database!", err);
+        return res.status(400).json({
+          "data": -1,
+          "message": "Could not connect to the database!"
+        });
+      }
+
+      let validInformation = requireQueryParams(req, ["leaderId", "followerId"]);
+      if (!validInformation) {
+        connection.release();
+        return res.status(400).json({
+          "data": -1,
+          "message": "Not a valid request! Need to pass 'leaderId' and 'followerId' in body!"
+        });
+      }
+      
+      let leaderId = req.query.leaderId;
+      let followerId = req.query.followerId;
+      let sql = `DELETE FROM Followers WHERE leaderId = ${leaderId} AND followerId = ${followerId}`;
+      connection.query(sql, (err, rows, fields) => {
+        if (err) {
+          connection.release();
+          logger.error("Could not connect to the database!", err);
+          return res.status(400).json({
+            "data": -1,
+            "message": "Could not connect to the database!"
+          });
+        }
+
+        connection.release();
+        res.status(200).json({
+          "data": rows.affectedRows,
+          "message": "Complete!"
+        });
+      });
+    });
+  });
 
   app.get('/posts', async(req, res) => {
     pool.getConnection(function (err, connection){

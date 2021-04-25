@@ -184,6 +184,13 @@ useEffect(() => {
  function openFollowing(){
   setSFLL(true);
 }
+function unfollow (id){
+  console.log(id);
+  conn.delete("followers/unfollow",{params:{
+    leaderId:id,
+    followerId: localStorage.loggedInId
+  }}).then((res)=>{console.log(res)});
+}
   function getPictures(){
     console.log(posts);
     let pics=[];
@@ -298,7 +305,7 @@ useEffect(() => {
     >
         <ul className="list-group">
         {
-            following.map((x, i) => <Grid container><Grid item xs={5}><a href={'/profile/'+x.userId}><button onClick={()=>{console.log(x)}}>{x.userId }</button></a></Grid><Grid item xs={2}><button>Unfollow</button></Grid></Grid>
+            following.map((x, i) => <Grid container><Grid item xs={5}><a href={'/profile/'+x.userId}><button onClick={()=>{}}>{x.userId }</button></a></Grid><Grid item xs={2}><button onClick={()=>unfollow(x.userId)}>Unfollow</button></Grid></Grid>
          )
         }
      </ul>
@@ -326,7 +333,13 @@ useEffect(() => {
         setPopOpen(true);
       
     };
-  
+    function follow (id){
+      conn.post("followers/follow",{
+        leaderId:id,
+        followerId: localStorage.loggedInId
+      }).then((res)=>{console.log(res)});
+    }
+ 
     const handleClose = () => {
       setAnchorEl(null);
       setPopOpen(false);
@@ -385,7 +398,7 @@ useEffect(() => {
      </form>
     </Popover></div>;
     if(par.id!=localStorage.getItem('loggedInId'))
-      return <></>;
+      return <><button onClick={()=>follow(par.id)}>Follow Me</button></>;
     return (
       pop
     );
