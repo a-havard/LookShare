@@ -1,7 +1,7 @@
 import {conn} from './config';
 
-class Accounts {
-  static addAccount(accountData) {
+class PostAPIs {
+  /*static addAccount(accountData) {
     return new Promise((resolve, reject) => {
       conn.post("/accounts", accountData)
         .then((res) => {
@@ -12,21 +12,19 @@ class Accounts {
           reject(res);
         })
     });
-  }
+  }*/
 
-  static getAccount(accountData) {
-    console.log("get");
+  static getAccountPosts(accountId) {
     return new Promise((resolve, reject) => {
-      conn.post("/accounts/login", accountData)
+      conn.get("/posts/author", accountId)
         .then((res) => {
-          console.log(res);
           resolve(res);
         })
-        .catch((error) => {
-          reject(error);
+        .catch((res) => {
+          reject(res);
         })
     });
   };
 }
 
-export default Accounts;
+export default PostAPIs;
