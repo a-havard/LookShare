@@ -23,7 +23,8 @@ import { matchPath, useParams } from 'react-router';
 import Axios from 'axios';
 import Post from './Post';
 
-import {conn} from '../routes/config'
+import { conn } from '../routes/config'
+import Header from './NavBar.js'
 
 const useStyles = makeStyles((theme) => ({
     profilepicgrid:{
@@ -658,7 +659,7 @@ useEffect(() => {
    }
     return(
       <>
-    
+        <Header />
       <PostingPopover/>
      
       <Grid className={classes.logo} item xs={12}>
