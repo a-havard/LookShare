@@ -114,16 +114,22 @@ const useStyles = makeStyles((theme) => ({
     
   }))
 const Post=props=>{
+    const [pic, setPic] = useState('');
     let instructions=[];
     let products=[];
     let ratings=[1,2,3,4,5,6,7,8,9,10];
-    let [accountData,setAccountData]=useState({
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const classes = useStyles();
+    let [openPost,setOpen]=useState();
+    let [id, setId]=useState(0);
+    const [username, setUsername]=useState()
+    let [accountData,setData]=useState({
         username:'',
-        accountId:-1
+        accountId:null
 
-    })
-    let [comments, setComments]=useState([]);
-    let [formData, setFormData]=useState({
+    });
+    const [comments, setComments]=useState([]);
+    const [formData, setFormData]=useState({
         name: '',
         rating: '',
         comment:''
@@ -131,14 +137,18 @@ const Post=props=>{
     useEffect(()=> {
          instructions=props.post.instructions.split('\n');
          products=props.post.products.split('\n');
-        if(accountData.accountId==-1){
+    if(username==false){
+      
     conn.get("/accounts/"+props.post.authorId,{params:{loggedInId : localStorage.loggedInId}})
     .then((res) => {
-        console.log(res);
-        setAccountData({
-        username:res.data.data.username,
-        accountId:res.data.data.userId
-    })})
+        console.log(res.data.data.userId);
+        setUsername(res.data.data.username);
+        let b=res.data.data.userId;
+        setId(b);
+       
+  console.log(id)})
+    }
+    if(comments){
     conn.get("/comments/posts/"+props.post.postId)
     .then((res)=>{
         setComments(res.data.data);
@@ -148,10 +158,8 @@ const Post=props=>{
 });
     
 
-    console.log(props);
-    const [anchorEl, setAnchorEl] = React.useState(null);
-    const classes = useStyles();
-    const [openPost,setOpen]=useState();
+
+   
   
       const handleClose = () => {
         setAnchorEl(null);
@@ -187,7 +195,7 @@ const Post=props=>{
         height:'70vh'},
         }}
       >
-          <a href={'/profile/'+accountData.accountId}><button>{accountData.username}</button></a>
+          <a href={'/profile/'+id}><button>{username}</button></a>
           <ShowImg className={classes.popoverPic}val={props.post.photo}/>
           <Grid container  maxWidth="80vw" className={classes.lookFull} spacing={2}>
             
@@ -266,6 +274,7 @@ const Post=props=>{
         let rating={
             authorId: props.post.authorId,
             parentPostId:props.post.postId,
+            postId:props.post.postId,
             comment:formData.comment,
             parentCommentId:null,
             isRepost:false,
@@ -275,6 +284,7 @@ const Post=props=>{
             .then((res)=>console.log(res));
         conn.get("/comments/posts/"+props.post.postId)
             .then((res)=>{
+              console.log(res);
                 setComments(res.data.data);
         
             })
@@ -283,13 +293,13 @@ const Post=props=>{
 
     function ShowImg(val){
         //console.log(val);
-        const [pic, setPic] = useState('');
+        
        
           useEffect(()=>{
             if(!pic){
               bufferToImage();
             }
-          },[]);
+          });
           const bufferToImage= async ()=>{
             var arrayBufferView = new Uint8Array( val.val.data );
             var blob = new Blob( [arrayBufferView]);

@@ -3,7 +3,7 @@ import {Rating} from '../Rating';
 const CommentForm=props=>
 {
     let ratings=[1,2,3,4,5,6,7,8,9,10];
-let [formData, setFormData]=useState({
+const [formData, setFormData]=useState({
     name: '',
     rating: '',
     comment:''
