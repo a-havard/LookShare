@@ -131,9 +131,10 @@ var par=useParams();
   const [showFollowingList,setSFLL]=useState();
   const [dataUri, setDataUri] = useState('');
   const [values, setValues] = useState([]);
-
+ 
  
 useEffect(() => {
+
   console.log(par);
   var id=parseInt(par.id);
   var logged=''+localStorage.getItem('loggedInId');
@@ -316,16 +317,23 @@ function unfollow (id){
     
   }
   function updateBio (newBio,newLink){
-    setBio(newBio);
-    setBioLink(newLink);
-    conn.put("/accounts/"+par.id+"/bio",{bio: newBio, bioLink:newLink})
+    let b=bio;
+    if(newBio){
+      setBio(newBio);
+      b=newBio;
+    }
+    let L=bioLink;
+    if(newLink){
+      setBioLink(newLink);
+    L=newLink}
+    conn.put("/accounts/"+par.id+"/bio",{bio: b, bioLink:L})
     .then((res)=>{console.log(res)})
     .then(setPopOpen(false));
   }
   function BioForm(){
     
-     let temp='';
-     let temp2='';
+     let temp;
+     let temp2;
     
     const handleClick = (event) => {
       //setAnchorEl(event.currentTarget);
@@ -671,7 +679,9 @@ function unfollow (id){
     setAnchorEl(event.currentTarget);
    }
     return(
+      
       <>
+  
       <Header />
       <PostingPopover/>
      
