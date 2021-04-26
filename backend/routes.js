@@ -491,6 +491,111 @@ module.exports = function routes(app, logger) {
     });
   });
 
+/* This API is for the purpose of future expandabiliy.... If we wish to add stories in the future and add a stories feature to the database  */
+/* Not included in initial project design
+  app.put('/accounts/:accountId/stories', async (req, res) => {
+    pool.getConnection((err, connection) => {
+      if (err) {
+        connection.release();
+        return couldNotConnect(res);
+      }
+
+      let accountId = typeof req.params.accountId === "string" ? parseInt(req.params.accountId) : req.params.accountId;
+      let validInformation = requireBodyParams(req, ["story"]);
+      if (!validInformation) {
+        connection.release();
+        return res.status(400).json({
+          "data": -1,
+          "message": "Not a valid request! Check API Schema!"
+        });
+      }
+
+      let sql = `SELECT * FROM Accounts WHERE userId = ${accountId}`;
+      connection.query(sql, (err, rows, fields) => {
+        if (err) {
+          connection.release();
+          return couldNotConnect(res);
+        }
+
+        sql = `UPDATE Accounts SET story = "${req.body.story}" WHERE userId = ${accountId}`;
+        connection.query(sql, (err, rows, fields) => {
+          if (err) {
+            connection.release();
+            return couldNotConnect(res);
+          }
+
+          return res.status(200).json({
+            "data": 0,
+            "message": "Update successful!"
+          });
+        });
+      })
+    })
+  });
+  */
+
+  /* This API also for future expandability if we wish to be able to add a comment on a story...again requring stories to be added to the database schema */
+  /*
+  app.post('/stories/comment', async (req, res) => {
+    pool.getConnection(function (err, connection){
+
+      // Try to connect to database, return an error if cannot
+      if (err) {
+        logger.error("Could not connect to the database!", err);
+        return res.status(400).json({
+          "data": -1,
+          "message": "Could not connect to the database!"
+        });
+      }
+
+      // Require a authorId, storyId, and comment
+      let validInformation = requireBodyParams(req, ["authorId", "storyId", "comment"]);
+      if (!validInformation) {
+        connection.release();
+        return res.status(200).json({
+
+          "data": -1,
+          "message": "Not a valid request! Check API Schema!"
+        });
+      }
+      let {parameters, values} = getReqParamsFromBody(req);
+
+      // Add comment to database
+      console.log(parameters);
+        let sql = `INSERT INTO Comments(${parameters.join(", ")})
+                      VALUES(${values.join(", ")});`;
+        if(values[3]==null){
+          sql = `INSERT INTO Comments(${parameters.join(", ")})
+                      VALUES(${values[0]},${values[1]},${values[2]});`;
+        }
+
+        console.log(sql);
+      //throw an error if comment could not be added to database
+      connection.query(sql, (err, rows, fields) => {
+        if (err) {
+          logger.error("Could not post the comment on the story!", err);
+          connection.release();
+          return res.status(400).json({
+            "data": -1,
+            "message": "Failed to post the comment on the story!"
+          });
+        }
+        connection.release();
+        logger.info(`Comment Posted!`);
+        return res.status(200).json({
+          "data": 0,
+          "message": "Successfully posted comment on the story!"
+  
+        });
+      });
+
+      //comment posted successfully
+      
+    });
+  });
+*/
+
+
   /*app.get('/accounts/:accountId', async(req, res) => {
     pool.getConnection((err, connection) => {
       if (err) {
