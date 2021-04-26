@@ -120,7 +120,6 @@ const SignIn = () => {
             <Grid container>
               <Grid item>
                 <Link
-                  href="#"
                   variant="body2"
                   onClick={() => history.push('/signup')}
                 >

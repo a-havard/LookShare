@@ -2,11 +2,11 @@ import React from 'react'
 import './App.css'
 import { BrowserRouter as Router, Route, Switch} from 'react-router-dom'
 
-
 import SignIn from './components/SignIn'
 import SignUp from './components/SignUp'
 import ProfilePage from './components/ProfilePage'
 import ExplorePage from './components/Explore'
+
 const App = props => {
   return(
     <div className="App">

@@ -46,15 +46,15 @@ const useStyles = makeStyles((theme) => ({
   let numPictures=11;
   let pictures=["https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150","https://via.placeholder.com/150"];
  
-const Profile = () =>{
+const Profile =()=>{
     const classes = useStyles();
-    const FormRow = () => {
+    function FormRow() {
       let items=[];
       for (var i = 0; i < numPictures; i+=3) {
         items[i]=<React.Fragment>
         <Grid  item container xs={100} spacing={0} >
         <Grid item xs={4}>
-          <img id='profileImage' className={classes.picture} src={pictures[i]}></img>
+          <img className={classes.picture} src={pictures[i]}></img>
           
         </Grid>
         <Grid item xs={4}>
@@ -73,12 +73,12 @@ const Profile = () =>{
        items
       );
     }
-
     return (
         <Grid container component="main" maxWidth="80vw" className={classes.grid} spacing={2}> 
           <Grid className={classes.logo} item xs={12}>
             <img src="https://via.placeholder.com/150x50"></img>
           </Grid>
+         
           <Grid className={classes.profilepicgrid } item xs={2} rs={3} spacing={30}>
             <img src="https://via.placeholder.com/150"></img>
           </Grid>
@@ -95,15 +95,21 @@ const Profile = () =>{
             <Grid item xs={5} rs={1}>
               <Paper className={classes.paper}>xs=2 rs=1 Following</Paper>
             </Grid>
-          </Grid>
-          <Grid item xs={5} rs={3}>
-            <Paper className={classes.paper}>xs=6 rs=3 Bio</Paper>
-          </Grid>
-          <Grid item xs={12} rs={2}></Grid>
-          <Grid item xs={12}>
-            <FormRow />
-          </Grid>
+       
         </Grid>
+        
+       
+       
+        <Grid item xs={5} rs={3}>
+          <Paper className={classes.paper}>xs=6 rs=3 Bio</Paper>
+        </Grid>
+        <Grid item xs={12} rs={2}></Grid>
+        <Grid item xs={12}>
+          <FormRow />
+        </Grid>
+      
+        </Grid>
+
     )
 }
 export default Profile

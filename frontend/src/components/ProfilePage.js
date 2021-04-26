@@ -23,7 +23,6 @@ const useStyles = makeStyles((theme) => ({
     grid:{
       marginTop: theme.spacing(0),
       marginLeft: theme.spacing(1)
-      
     },
     logo:{
       float: "center",
@@ -32,12 +31,6 @@ const useStyles = makeStyles((theme) => ({
     picture:{
       width: "90%",
       paddingBottom: theme.spacing(2),
-    },
-    paper: {
-      marginTop: theme.spacing(0),
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
     },
     avatar: {
       margin: theme.spacing(1),
@@ -87,11 +80,21 @@ const useStyles = makeStyles((theme) => ({
     },
     bio:{
       width:'80%',
+      marginLeft:'10%',
+      marginTop: '2%'
+    },
+    postsGrid:{
+      width:'80%',
       marginLeft:'10%'
     },
-    postsGrid:{width:'80%',
-    marginLeft:'10%'}
-    
+    username:{
+      height: 40,
+      fontWeight: 'bold',
+      fontSize: '2em',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }
   }))
 
  
@@ -156,13 +159,7 @@ useEffect(() => {
       //console.log(posts);
       var pics=[];
       let i=0;
-    
-
-    
     });
-    
-   
-   
   }
 });
  function openFollowers(){
@@ -357,10 +354,10 @@ function unfollow (id){
         vertical: 'top',
         horizontal: 'center',
       }}
-      PaperProps={{
-        style: { width: '70%',
-        height:'70vh'},
-        }}
+      // PaperProps={{
+      //   style: { width: '70%',
+      //   height:'70vh'},
+      //   }}
     >
       <form>
       <label for="link">Link</label>
@@ -665,65 +662,45 @@ function unfollow (id){
     setAnchorEl(event.currentTarget);
    }
     return(
-      
       <>
-  
       <Header />
       <PostingPopover/>
-     
-      <Grid className={classes.logo} item xs={12}>
-      
-      
-      </Grid>
-      
-<Card className={classes.bio}>
-  
-       
-  <CardContent className={classes.bioInfo}>
-  <Grid container component="main" maxWidth="80vw" className={classes.grid} spacing={2}> 
-      <Grid className={classes.profilepicgrid } item xs={2} rs={3} spacing={30}>
-        <img src="https://via.placeholder.com/150" className={classes.profilePic}></img>
-    
-      </Grid>
-      <Grid id="info" item container xs={4}  spacing={1}>
-        <Grid item xs={5} >
-          <Paper className={classes.paper}>{username}</Paper>
-        </Grid>
-        <Grid item xs={5} >
-          <BioForm/>
-        </Grid>
-        <Grid item xs={6} rs={1}>
-          <Paper className={classes.paper} elevation = {0} onClick={hc}><FollowerList/></Paper>
-        </Grid>
-        <Grid item xs={5} rs={1}>
-          <Paper className={classes.paper} elevation = {0} onClick={hc}><FollowingList/></Paper>
-        </Grid>
-   
-    </Grid>
-    
-   
-   
-    <Grid item xs={5} rs={3}>
-      
-      <Card className={classes.paper} elevation = {0} >
-        <CardContent>
-        <p>{bio}</p>
-        <a href={bioLink}>My Link: {bioLink}</a>
+      <Card className={classes.bio} variant='outlined'>
+        <CardContent className={classes.bioInfo}>
+          <Grid container component="main" maxWidth="80vw" className={classes.grid} spacing={2}> 
+            <Grid className={classes.profilepicgrid} item xs={2} rs={3} spacing={30}>
+              <img src="https://via.placeholder.com/150" className={classes.profilePic}></img>
+            </Grid>
+            <Grid id="info" item container xs={7} spacing={1} justify='center' alignItems='flex-start'>
+              <Grid item xs={6} >
+                <Paper className={classes.username} variant='outlined'>{username}</Paper>
+              </Grid>
+              <Grid item xs alignItems='center'>
+                <BioForm/>
+              </Grid>
+              <Grid item xs={6} rs={1}>
+                <Paper elevation = {0} onClick={hc}><FollowerList/></Paper>
+              </Grid>
+              <Grid item xs={5} rs={1}>
+                <Paper elevation = {0} onClick={hc}><FollowingList/></Paper>
+              </Grid>
+            </Grid>
+            <Grid item xs rs={3}>
+              <Card elevation = {0} >
+                <CardContent>
+                <p>{bio}</p>
+                <a href={bioLink}>My Link: {bioLink}</a>
+                </CardContent>
+                </Card>
+            </Grid>
+          </Grid>
         </CardContent>
-       
-        
-        </Card>
-    </Grid>
-    </Grid>
-    </CardContent>
-    
-    </Card>
-    <Grid container component="main" maxWidth="80vw" className={classes.grid} spacing={2}> 
-    <Grid item xs={12} rs={2}></Grid>
-    <FormRow className={classes.postsGrid}/>
-    <Grid item xs={12} rs={2}><PostInformationForm/></Grid>
-    </Grid>
-    
+      </Card>
+      <Grid container component="main" maxWidth="80vw" className={classes.grid} spacing={2}> 
+        <Grid item xs={12} rs={2}></Grid>
+          <FormRow className={classes.postsGrid}/>
+        <Grid item xs={12} rs={2}><PostInformationForm/></Grid>
+      </Grid>
 </>
     );
 }
