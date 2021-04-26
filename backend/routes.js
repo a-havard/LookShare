@@ -690,7 +690,7 @@ module.exports = function routes(app, logger) {
         let private = rows[0].private;
 
         if (loggedInId !== accountId && private) {
-          sql = `SELECT firstName, lastName, username, userId FROM Accounts WHERE userId = "${accountId}"`;
+          sql = `SELECT firstName, lastName, username, userId, profilePicture FROM Accounts WHERE userId = "${accountId}"`;
           connection.query(sql, (err, rows, fields) => {
             if (err) {
               connection.release();
@@ -702,7 +702,7 @@ module.exports = function routes(app, logger) {
             }
 
             let returnValue = rows[0];
-            sql = `SELECT followerId as userId, firstName, lastName, username FROM Followers
+            sql = `SELECT followerId as userId, firstName, lastName, username, profilePicture FROM Followers
                     INNER JOIN Accounts
                     ON userId = followerId
                     WHERE leaderId = "${accountId}"`;
@@ -719,7 +719,7 @@ module.exports = function routes(app, logger) {
 
               returnValue.followers = rows;
 
-              sql = `SELECT leaderId as userId, firstName, lastName, username FROM Followers
+              sql = `SELECT leaderId as userId, firstName, lastName, username, profilePicture FROM Followers
                       INNER JOIN Accounts
                       ON userId = leaderId
                       WHERE followerId = "${accountId}"`;
@@ -743,7 +743,7 @@ module.exports = function routes(app, logger) {
             })
           });
         } else {
-          sql = `SELECT firstName, lastName, bio, bioLink, username, userId FROM Accounts WHERE userId = "${accountId}"`;
+          sql = `SELECT firstName, lastName, bio, bioLink, username, userId, profilePicture FROM Accounts WHERE userId = "${accountId}"`;
           connection.query(sql, (err, rows, fields) => {
             if (err) {
               connection.release();
@@ -755,7 +755,7 @@ module.exports = function routes(app, logger) {
             }
 
             let returnValue = rows[0];
-            sql = `SELECT followerId as userId, firstName, lastName, username FROM Followers
+            sql = `SELECT followerId as userId, firstName, lastName, username, profilePicture FROM Followers
                     INNER JOIN Accounts
                     ON userId = followerId
                     WHERE leaderId = "${accountId}"`;
@@ -770,7 +770,7 @@ module.exports = function routes(app, logger) {
               }
 
               returnValue.followers = rows;
-              sql = `SELECT leaderId as userId, firstName, lastName, username FROM Followers
+              sql = `SELECT leaderId as userId, firstName, lastName, username, profilePicture FROM Followers
                       INNER JOIN Accounts
                       ON userId = leaderId
                       WHERE followerId = "${accountId}"`;
@@ -1064,6 +1064,78 @@ module.exports = function routes(app, logger) {
         });
       });
     }); 
+  });
+
+  app.put('/accounts/:accountId/profilePicture', (req, res) => {
+    pool.getConnection((err, connection) => {
+      if (err) {
+        connection.release();
+        logger.error("Could not connect to the database!", err);
+        return res.status(400).json({
+          "data": -1,
+          "message": "Could not connect to the database!"
+        });
+      }
+
+      let validInformation = requireBodyParams(req, ["profilePicture"]);
+      if (!validInformation) {
+        connection.release();
+        return res.status(400).json({
+          "data": -1,
+          "message": "Not a valid request! Need to pass 'profilePicture' in body!"
+        });
+      }
+      
+      let profilePicture = req.body.profilePicture;
+      let sql = `UPDATE Accounts SET profilePicture = "${profilePicture}" WHERE userId = ${req.params.accountId}`;
+      connection.query(sql, (err, rows, fields) => {
+        connection.release();
+
+        if (err) {
+          logger.error("Could not connect to the database!", err);
+          return res.status(400).json({
+            "data": -1,
+            "message": "Could not connect to the database!"
+          });
+        }
+
+        return res.status(200).json({
+          "data": rows,
+          "message": "Successful!"
+        });
+      });
+    });
+  });
+
+  app.delete('/accounts/:accountId/profilePicture', (req, res) => {
+    pool.getConnection((err, connection) => {
+      if (err) {
+        connection.release();
+        logger.error("Could not connect to the database!", err);
+        return res.status(400).json({
+          "data": -1,
+          "message": "Could not connect to the database!"
+        });
+      }
+
+      let sql = `UPDATE Accounts SET profilePicture = NULL WHERE userId = ${req.params.accountId}`;
+      connection.query(sql, (err, rows, fields) => {
+        connection.release();
+
+        if (err) {
+          logger.error("Could not connect to the database!", err);
+          return res.status(400).json({
+            "data": -1,
+            "message": "Could not connect to the database!"
+          });
+        }
+
+        return res.status(200).json({
+          "data": rows,
+          "message": "Successful!"
+        });
+      });
+    });
   });
 }
 
