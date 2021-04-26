@@ -672,7 +672,7 @@ function unfollow (id){
    }
     return(
       <>
-        <Header />
+      <Header />
       <PostingPopover/>
      
       <Grid className={classes.logo} item xs={12}>
