@@ -133,7 +133,9 @@ const Post=props=>{
          products=props.post.products.split('\n');
         if(accountData.accountId==-1){
     conn.get("/accounts/"+props.post.authorId,{params:{loggedInId : localStorage.loggedInId}})
-    .then((res) => {setAccountData({
+    .then((res) => {
+        console.log(res);
+        setAccountData({
         username:res.data.data.username,
         accountId:res.data.data.userId
     })})
@@ -143,13 +145,13 @@ const Post=props=>{
 
     })
 }
-console.log(accountData)});
+});
     
 
     console.log(props);
     const [anchorEl, setAnchorEl] = React.useState(null);
     const classes = useStyles();
-    let [openPost,setOpen]=useState();
+    const [openPost,setOpen]=useState();
   
       const handleClose = () => {
         setAnchorEl(null);

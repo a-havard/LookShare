@@ -1,3 +1,4 @@
+
 const pool = require('./db');
 const crypto = require('crypto');
 const salt = "nHBvb9INojnioygtcuVRETRYUIY890-nmvds";
@@ -491,111 +492,6 @@ module.exports = function routes(app, logger) {
     });
   });
 
-/* This API is for the purpose of future expandabiliy.... If we wish to add stories in the future and add a stories feature to the database  */
-/* Not included in initial project design
-  app.put('/accounts/:accountId/stories', async (req, res) => {
-    pool.getConnection((err, connection) => {
-      if (err) {
-        connection.release();
-        return couldNotConnect(res);
-      }
-
-      let accountId = typeof req.params.accountId === "string" ? parseInt(req.params.accountId) : req.params.accountId;
-      let validInformation = requireBodyParams(req, ["story"]);
-      if (!validInformation) {
-        connection.release();
-        return res.status(400).json({
-          "data": -1,
-          "message": "Not a valid request! Check API Schema!"
-        });
-      }
-
-      let sql = `SELECT * FROM Accounts WHERE userId = ${accountId}`;
-      connection.query(sql, (err, rows, fields) => {
-        if (err) {
-          connection.release();
-          return couldNotConnect(res);
-        }
-
-        sql = `UPDATE Accounts SET story = "${req.body.story}" WHERE userId = ${accountId}`;
-        connection.query(sql, (err, rows, fields) => {
-          if (err) {
-            connection.release();
-            return couldNotConnect(res);
-          }
-
-          return res.status(200).json({
-            "data": 0,
-            "message": "Update successful!"
-          });
-        });
-      })
-    })
-  });
-  */
-
-  /* This API also for future expandability if we wish to be able to add a comment on a story...again requring stories to be added to the database schema */
-  /*
-  app.post('/stories/comment', async (req, res) => {
-    pool.getConnection(function (err, connection){
-
-      // Try to connect to database, return an error if cannot
-      if (err) {
-        logger.error("Could not connect to the database!", err);
-        return res.status(400).json({
-          "data": -1,
-          "message": "Could not connect to the database!"
-        });
-      }
-
-      // Require a authorId, storyId, and comment
-      let validInformation = requireBodyParams(req, ["authorId", "storyId", "comment"]);
-      if (!validInformation) {
-        connection.release();
-        return res.status(200).json({
-
-          "data": -1,
-          "message": "Not a valid request! Check API Schema!"
-        });
-      }
-      let {parameters, values} = getReqParamsFromBody(req);
-
-      // Add comment to database
-      console.log(parameters);
-        let sql = `INSERT INTO Comments(${parameters.join(", ")})
-                      VALUES(${values.join(", ")});`;
-        if(values[3]==null){
-          sql = `INSERT INTO Comments(${parameters.join(", ")})
-                      VALUES(${values[0]},${values[1]},${values[2]});`;
-        }
-
-        console.log(sql);
-      //throw an error if comment could not be added to database
-      connection.query(sql, (err, rows, fields) => {
-        if (err) {
-          logger.error("Could not post the comment on the story!", err);
-          connection.release();
-          return res.status(400).json({
-            "data": -1,
-            "message": "Failed to post the comment on the story!"
-          });
-        }
-        connection.release();
-        logger.info(`Comment Posted!`);
-        return res.status(200).json({
-          "data": 0,
-          "message": "Successfully posted comment on the story!"
-  
-        });
-      });
-
-      //comment posted successfully
-      
-    });
-  });
-*/
-
-
   /*app.get('/accounts/:accountId', async(req, res) => {
     pool.getConnection((err, connection) => {
       if (err) {
@@ -605,7 +501,6 @@ module.exports = function routes(app, logger) {
           "message": "Could not connect to the database!"
         });
       }
-
       let validInformation = requireQueryParams(req, ["loggedInId"]);
       if (!validInformation) {
         connection.release();
@@ -614,11 +509,9 @@ module.exports = function routes(app, logger) {
           "message": "Not a valid request! Need loggedInId in header!"
         });
       }
-
       let loggedInId = typeof req.query.loggedInId === "string" ? JSON.parse(req.query.loggedInId) : req.query.loggedInId;
       let accountId = typeof req.params.accountId === "string" ? JSON.parse(req.params.accountId) : req.params.accountId;
       let sql = `SELECT private FROM Accounts WHERE userId = "${accountId}"`;
-
       connection.query(sql, (err, rows, fields) => {
         if (err) {
           connection.release();
@@ -628,7 +521,6 @@ module.exports = function routes(app, logger) {
             "message": "Could not connect to the database!"
           });
         }
-
         let matched = rows.length > 0;
         if (!matched) {
           connection.release();
@@ -638,9 +530,7 @@ module.exports = function routes(app, logger) {
             "message": `No matching account with id ${accountId}!`
           })
         }
-
         let private = rows[0].private;
-
         if (loggedInId !== accountId && private) {
           sql = `SELECT firstName, lastName, username FROM Accounts WHERE userId = "${accountId}"`;
           connection.query(sql, (err, rows, fields) => {
@@ -652,7 +542,6 @@ module.exports = function routes(app, logger) {
                 "message": "Could not connect to the database!"
               }); 
             }
-
             let returnValue = rows[0];
             sql = `SELECT followerId as userId, firstName, lastName, username FROM Followers
                     INNER JOIN Accounts
@@ -668,9 +557,7 @@ module.exports = function routes(app, logger) {
                   "message": "Could not connect to the database!"
                 }); 
               }
-
               returnValue.followers = rows;
-
               sql = `SELECT leaderId as userId, firstName, lastName, username FROM Followers
                       INNER JOIN Accounts
                       ON userId = leaderId
@@ -684,7 +571,6 @@ module.exports = function routes(app, logger) {
                     "message": "Could not connect to the database!"
                   }); 
                 }
-
                 returnValue.following = rows;
                 connection.release();
                 return res.status(200).json({
@@ -705,7 +591,6 @@ module.exports = function routes(app, logger) {
                 "message": "Could not connect to the database!"
               }); 
             }
-
             let returnValue = rows[0];
             sql = `SELECT followerId as userId, firstName, lastName, username FROM Followers
                     INNER JOIN Accounts
@@ -720,7 +605,6 @@ module.exports = function routes(app, logger) {
                   "message": "Could not connect to the database!"
                 }); 
               }
-
               returnValue.followers = rows;
               sql = `SELECT leaderId as userId, firstName, lastName, username FROM Followers
                       INNER JOIN Accounts
@@ -735,7 +619,6 @@ module.exports = function routes(app, logger) {
                     "message": "Could not connect to the database!"
                   }); 
                 }
-
                 returnValue.following = rows;
                 connection.release();
                 return res.status(200).json({
@@ -795,7 +678,7 @@ module.exports = function routes(app, logger) {
         let private = rows[0].private;
 
         if (loggedInId !== accountId && private) {
-          sql = `SELECT firstName, lastName, username, userId FROM Accounts WHERE userId = "${accountId}"`;
+          sql = `SELECT firstName, lastName, username, userId, profilePicture FROM Accounts WHERE userId = "${accountId}"`;
           connection.query(sql, (err, rows, fields) => {
             if (err) {
               connection.release();
@@ -807,7 +690,7 @@ module.exports = function routes(app, logger) {
             }
 
             let returnValue = rows[0];
-            sql = `SELECT followerId as userId, firstName, lastName, username FROM Followers
+            sql = `SELECT followerId as userId, firstName, lastName, username, profilePicture FROM Followers
                     INNER JOIN Accounts
                     ON userId = followerId
                     WHERE leaderId = "${accountId}"`;
@@ -824,7 +707,7 @@ module.exports = function routes(app, logger) {
 
               returnValue.followers = rows;
 
-              sql = `SELECT leaderId as userId, firstName, lastName, username FROM Followers
+              sql = `SELECT leaderId as userId, firstName, lastName, username, profilePicture FROM Followers
                       INNER JOIN Accounts
                       ON userId = leaderId
                       WHERE followerId = "${accountId}"`;
@@ -848,7 +731,7 @@ module.exports = function routes(app, logger) {
             })
           });
         } else {
-          sql = `SELECT firstName, lastName, bio, bioLink, username, userId FROM Accounts WHERE userId = "${accountId}"`;
+          sql = `SELECT firstName, lastName, bio, bioLink, username, userId, profilePicture FROM Accounts WHERE userId = "${accountId}"`;
           connection.query(sql, (err, rows, fields) => {
             if (err) {
               connection.release();
@@ -860,7 +743,7 @@ module.exports = function routes(app, logger) {
             }
 
             let returnValue = rows[0];
-            sql = `SELECT followerId as userId, firstName, lastName, username FROM Followers
+            sql = `SELECT followerId as userId, firstName, lastName, username, profilePicture FROM Followers
                     INNER JOIN Accounts
                     ON userId = followerId
                     WHERE leaderId = "${accountId}"`;
@@ -875,7 +758,7 @@ module.exports = function routes(app, logger) {
               }
 
               returnValue.followers = rows;
-              sql = `SELECT leaderId as userId, firstName, lastName, username FROM Followers
+              sql = `SELECT leaderId as userId, firstName, lastName, username, profilePicture FROM Followers
                       INNER JOIN Accounts
                       ON userId = leaderId
                       WHERE followerId = "${accountId}"`;
@@ -1169,6 +1052,78 @@ module.exports = function routes(app, logger) {
         });
       });
     }); 
+  });
+
+  app.put('/accounts/:accountId/profilePicture', (req, res) => {
+    pool.getConnection((err, connection) => {
+      if (err) {
+        connection.release();
+        logger.error("Could not connect to the database!", err);
+        return res.status(400).json({
+          "data": -1,
+          "message": "Could not connect to the database!"
+        });
+      }
+
+      let validInformation = requireBodyParams(req, ["profilePicture"]);
+      if (!validInformation) {
+        connection.release();
+        return res.status(400).json({
+          "data": -1,
+          "message": "Not a valid request! Need to pass 'profilePicture' in body!"
+        });
+      }
+      
+      let profilePicture = req.body.profilePicture;
+      let sql = `UPDATE Accounts SET profilePicture = "${profilePicture}" WHERE userId = ${req.params.accountId}`;
+      connection.query(sql, (err, rows, fields) => {
+        connection.release();
+
+        if (err) {
+          logger.error("Could not connect to the database!", err);
+          return res.status(400).json({
+            "data": -1,
+            "message": "Could not connect to the database!"
+          });
+        }
+
+        return res.status(200).json({
+          "data": rows,
+          "message": "Successful!"
+        });
+      });
+    });
+  });
+
+  app.delete('/accounts/:accountId/profilePicture', (req, res) => {
+    pool.getConnection((err, connection) => {
+      if (err) {
+        connection.release();
+        logger.error("Could not connect to the database!", err);
+        return res.status(400).json({
+          "data": -1,
+          "message": "Could not connect to the database!"
+        });
+      }
+
+      let sql = `UPDATE Accounts SET profilePicture = NULL WHERE userId = ${req.params.accountId}`;
+      connection.query(sql, (err, rows, fields) => {
+        connection.release();
+
+        if (err) {
+          logger.error("Could not connect to the database!", err);
+          return res.status(400).json({
+            "data": -1,
+            "message": "Could not connect to the database!"
+          });
+        }
+
+        return res.status(200).json({
+          "data": rows,
+          "message": "Successful!"
+        });
+      });
+    });
   });
 }
 

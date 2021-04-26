@@ -25,6 +25,7 @@ import Post from './Post';
 
 import { conn } from '../routes/config'
 import Header from './NavBar.js'
+import { ShowChart } from '@material-ui/icons';
 
 const useStyles = makeStyles((theme) => ({
     profilepicgrid:{
@@ -119,6 +120,8 @@ var par=useParams();
   let fileInput = React.createRef(); 
   let temp;
   let [username,setUsername]=useState(null);
+  let [profilePic,setProfilePic]=useState(null);
+  const [pic, setPic] = useState('');
   let [bio,setBio]=useState('This account is private!');
   let [bioLink,setBioLink]=useState('');
   let [followers,setFollowers]=useState([]);
@@ -126,12 +129,13 @@ var par=useParams();
   let [posts,setPosts]=useState([]);
   let [popOpen,setPopOpen]=useState();
   let [addingPost,setPosting]=useState();
+  let [openPPP,setPPP]=useState();
   let [selectedPost,setSelectedPost]=useState();
   const [showFollowerList,setSFL]=useState();
   const [showFollowingList,setSFLL]=useState();
   const [dataUri, setDataUri] = useState('');
   const [values, setValues] = useState([]);
- 
+  
  
 useEffect(() => {
 
@@ -154,7 +158,12 @@ useEffect(() => {
         setFollowers(res.data.data.followers);
         if(res.data.data.following)
         setFollowing(res.data.data.following);
-       
+        if(res.data.data.profilePicture){
+          setProfilePic(res.data.data.profilePicture);
+        }
+        else{
+
+        }
         
         loaded=true;
       })
@@ -186,18 +195,18 @@ useEffect(() => {
   setSFLL(true);
 }
 function unfollow (id){
-  console.log(id);
+  //console.log(id);
   conn.delete("followers/unfollow",{params:{
     leaderId:id,
     followerId: localStorage.loggedInId
   }}).then((res)=>{console.log(res)});
 }
   function getPictures(){
-    console.log(posts);
+    //console.log(posts);
     let pics=[];
     let i=0;
   for( i=0;i<posts.length;i++){
-    console.log(posts[i].photo);
+    //console.log(posts[i].photo);
     var arrayBufferView = new Uint8Array( posts[i].photo.data );
       var blob = new Blob( [arrayBufferView]);
   
@@ -221,7 +230,7 @@ function unfollow (id){
   function FollowerList(){
     const handleClick = (event) => {
       //setAnchorEl(event.currentTarget);
-      console.log("click");
+      //console.log("click");
       if(!showFollowerList)
         setSFL(true);
       
@@ -632,34 +641,113 @@ function unfollow (id){
      </form>
     </Popover>
     }
+    function ProfilePicPopover(){
     
-    function ShowImg(val){
-      //console.log(val);
-      const [pic, setPic] = useState('');
-     
-        useEffect(()=>{
-          if(!pic){
-            bufferToImage();
-          }
-        },[]);
-        const bufferToImage= async ()=>{
-          var arrayBufferView = new Uint8Array( val.val.data );
-          var blob = new Blob( [arrayBufferView]);
-        
-         var imageUrl = URL.createObjectURL( blob );
-         var reader = new FileReader();
-         let y;
-         reader.onload = function() {
-            // alert(reader.result);
-            //console.log(reader.result);
-             setPic(reader.result);
-             
-         }
-         reader.readAsText(blob);
-        }
-     return <img src={pic} className={classes.postPicture}/>;
+      let formData= {
+        file: '',
+       };
+    
+      let ratings=[1,2,3,4,5,6,7,8,9,10];
+    const handleClose = () => {
+      setAnchorEl(null);
+      setPPP(false);
+    };
+    if(par.id!=localStorage.getItem('loggedInId'))
+    return <></>;
+      return <Popover 
+      className={classes.overlay}
       
+      open={openPPP}
+      anchorPosition={{left: '0vw',top: '0vh'}
+      }
+  
+      onClose={handleClose}
+      anchorOrigin={{
+        vertical: 'top',
+        horizontal: 'center'
+      }}
+      transformOrigin={{
+        horizontal: 'center'
+      }}
+      
+      PaperProps={{
+      style: { width: '70%',
+      height:'70vh'},
+      }}
+    >
+     <h1>Please select the file for your new profile picture</h1>
+     <form className={classes.forms}>
+     <Grid container  maxWidth="80vw" className={classes.grid} spacing={2}>
+      <Grid item xs={12} >
+        <label for='photo'>Select Photo:   </label><br/>
+      <input
+                        type="file"
+                        name="photo"
+                        id="photo"
+                        className={classes.formControl}
+                        //onChange={handleImageChange}
+                        ref={fileInput}
+                        onChange={ event => {formData.file=( event.target.files[0])} } 
+                    
+                        />
+                        </Grid>
+                        <Grid item xs={12} >
+                        <button
+                            type="button"
+                            className={classes.formButton}
+                            color = "blue"
+                            onClick={ () => changeProfilePic(formData) }>
+                            Post it
+                        </button> 
+                          </Grid>                 
+      </Grid>
+     
+   
+                
+     </form>
+    </Popover>
     }
+    let loaded=false 
+    function ShowImg(){
+        console.log(profilePic);
+        useEffect(()=>{
+          if(!loaded){
+            bufferToImage();
+            loaded=true;
+          }
+          
+        });
+        if(profilePic=="https://via.placeholder.com/150"){
+          setPic("https://via.placeholder.com/150");
+        return <img src="https://via.placeholder.com/150" className={classes.profilePic} onClick={()=>{
+          alert( "click");
+          setPPP(true)}}></img>;}
+       
+          
+          
+          const bufferToImage= async ()=>{
+            console.log(profilePic);
+            if(profilePic){
+            var arrayBufferView = new Uint8Array( profilePic.data );
+            var blob = new Blob( [arrayBufferView]);
+          
+           var imageUrl = URL.createObjectURL( blob );
+           var reader = new FileReader();
+           let y;
+           reader.onload = function() {
+              // alert(reader.result);
+              console.log(reader.result);
+               setPic(reader.result);
+               
+           }
+           reader.readAsText(blob);
+          }
+        }
+       return <img src={pic} className={classes.postPicture} onClick={()=>{
+        alert( "click");
+        setPPP(true)}}/>;
+        
+      }
     function FormRow() {
       let items=[];
       
@@ -675,6 +763,21 @@ function unfollow (id){
      
      
     }
+    function changeProfilePic(data){
+      setPPP(false);
+      let reader = new FileReader();
+      let inFile = data.file;
+      reader.onloadend = () => {
+        console.log(reader.result);
+        setPic(data.file);
+        conn.put('/accounts/'+par.id+'/profilePicture',{profilePicture: reader.result})
+          .then((res)=>{console.log(res)});
+      }
+      reader.readAsDataURL(inFile);
+
+
+          
+    }
    const hc=(event)=>{
     setAnchorEl(event.currentTarget);
    }
@@ -684,7 +787,7 @@ function unfollow (id){
   
       <Header />
       <PostingPopover/>
-     
+      <ProfilePicPopover/>
       <Grid className={classes.logo} item xs={12}>
       
       
@@ -696,7 +799,7 @@ function unfollow (id){
   <CardContent className={classes.bioInfo}>
   <Grid container component="main" maxWidth="80vw" className={classes.grid} spacing={2}> 
       <Grid className={classes.profilepicgrid } item xs={2} rs={3} spacing={30}>
-        <img src="https://via.placeholder.com/150" className={classes.profilePic}></img>
+        <ShowImg className={classes.profilePic} />
     
       </Grid>
       <Grid id="info" item container xs={4}  spacing={1}>
