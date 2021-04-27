@@ -116,6 +116,9 @@ var par=useParams();
   let [bioLink,setBioLink]=useState('');
   let [followers,setFollowers]=useState([]);
   let [following,setFollowing]=useState([]);
+  let [profilePic,setProfilePic]=useState();
+  const [pic, setPic] = useState('');
+  let [openPPP,setPPP]=useState();
   let [posts,setPosts]=useState([]);
   let [popOpen,setPopOpen]=useState();
   let [addingPost,setPosting]=useState();
@@ -124,7 +127,7 @@ var par=useParams();
   const [showFollowingList,setSFLL]=useState();
   const [dataUri, setDataUri] = useState('');
   const [values, setValues] = useState([]);
- 
+ let [loaded,setLoaded]=useState();
  
 useEffect(() => {
 
@@ -147,7 +150,10 @@ useEffect(() => {
         setFollowers(res.data.data.followers);
         if(res.data.data.following)
         setFollowing(res.data.data.following);
-       
+        if(res.data.data.profilePicture){
+          setProfilePic(res.data.data.profilePicture);
+          
+        }
         
         loaded=true;
       })
@@ -588,7 +594,118 @@ function unfollow (id){
      </form>
     </Popover>
     }
-    function ShowImg(val){
+    function ProfilePicPopover(){
+      console.log("runs");
+      let formData= {
+        file: '',
+       };
+    
+      let ratings=[1,2,3,4,5,6,7,8,9,10];
+    const handleClose = () => {
+      setAnchorEl(null);
+      setPPP(false);
+    };
+    if(par.id!=localStorage.getItem('loggedInId'))
+    return <></>;
+      return <Popover 
+      className={classes.overlay}
+      
+      open={openPPP}
+      anchorPosition={{left: '0vw',top: '0vh'}
+      }
+  
+      onClose={handleClose}
+      anchorOrigin={{
+        vertical: 'top',
+        horizontal: 'center'
+      }}
+      transformOrigin={{
+        horizontal: 'center'
+      }}
+      
+      PaperProps={{
+      style: { width: '70%',
+      height:'70vh'},
+      }}
+    >
+     <h1>Please select the file for your new profile picture</h1>
+     <form className={classes.forms}>
+     <Grid container  maxWidth="80vw" className={classes.grid} spacing={2}>
+      <Grid item xs={12} >
+        <label for='photo'>Select Photo:   </label><br/>
+      <input
+                        type="file"
+                        name="photo"
+                        id="photo"
+                        className={classes.formControl}
+                        //onChange={handleImageChange}
+                        ref={fileInput}
+                        onChange={ event => {formData.file=( event.target.files[0])} } 
+                    
+                        />
+                        </Grid>
+                        <Grid item xs={12} >
+                        <button
+                            type="button"
+                            className={classes.formButton}
+                            color = "blue"
+                            onClick={ () => {changeProfilePic(formData)} }>
+                            Post it
+                        </button> 
+                          </Grid>                 
+      </Grid>
+     
+   
+                
+     </form>
+    </Popover>
+    }
+    function ShowImg(){
+     
+      useEffect(()=>{
+        if(!loaded){
+          bufferToImage();
+          
+        }
+        
+      });
+     
+      if(profilePic=="https://via.placeholder.com/150"){
+        setPic("https://via.placeholder.com/150");
+        setLoaded(true);
+      return <img src="https://via.placeholder.com/150" className={classes.profilePic} onClick={()=>{
+   
+        setPPP(true)}}></img>;}
+        
+        
+        const bufferToImage= async ()=>{
+          if(profilePic=="https://via.placeholder.com/150"||profilePic==''||!profilePic){
+            setPic("https://via.placeholder.com/150");
+            return;}
+         
+          console.log(profilePic);
+          if(profilePic){
+          var arrayBufferView = new Uint8Array( profilePic.data );
+          var blob = new Blob( [arrayBufferView]);
+        
+         var imageUrl = URL.createObjectURL( blob );
+         var reader = new FileReader();
+         let y;
+         reader.onload = function() {
+            // alert(reader.result);
+             setPic(reader.result);
+             setLoaded(true);
+         }
+         reader.readAsText(blob);
+        }
+      }
+     
+     return <img src={pic} className={classes.postPicture} onClick={()=>{
+      setPPP(true);}}/>;
+      
+    }
+
+    /*function ShowImg(val){
       const [pic, setPic] = useState('');
      
         useEffect(()=>{
@@ -610,6 +727,27 @@ function unfollow (id){
         }
      return <img src={pic} className={classes.postPicture}/>;
       
+    }*/
+    function changeProfilePic(data){
+      setPPP(false);
+      if(loaded)
+        setLoaded(false);
+      let reader = new FileReader();
+      let inFile = data.file;
+      reader.onloadend = () => {
+        console.log(reader.result);
+        setPic(data.file);
+        conn.put('/accounts/'+par.id+'/profilePicture',{profilePicture: reader.result})
+          .then(()=>{
+            conn.get("/accounts/"+par.id,{params:{loggedInId : localStorage.loggedInId}}).then((res)=>{
+              setProfilePic(res.data.data.profilePicture)}
+            );
+          });
+      }
+      reader.readAsDataURL(inFile);
+
+
+          
     }
     function FormRow() {
       let items=[];
@@ -629,11 +767,12 @@ function unfollow (id){
       <>
       <Header />
       <PostingPopover/>
+      <ProfilePicPopover/>
       <Card className={classes.bio} variant='outlined'>
         <CardContent className={classes.bioInfo}>
           <Grid container component="main" maxWidth="80vw" className={classes.grid} spacing={2}> 
             <Grid className={classes.profilepicgrid} item xs={2} rs={3} spacing={30}>
-              <img src="https://via.placeholder.com/150" className={classes.profilePic}></img>
+              <ShowImg></ShowImg>
             </Grid>
             <Grid id="info" item container xs spacing={1} justify='center' alignItems='flex-start'>
               <Grid item xs={6} >
