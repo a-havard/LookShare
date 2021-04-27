@@ -1,6 +1,7 @@
 import React from 'react'
 import './App.css'
 import { BrowserRouter as Router, Route, Switch} from 'react-router-dom'
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 import SignIn from './components/SignIn'
 import SignUp from './components/SignUp'

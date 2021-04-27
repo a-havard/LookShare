@@ -36,9 +36,8 @@ const useStyles = makeStyles((theme) => ({
       margin: theme.spacing(1),
       backgroundColor: theme.palette.secondary.main,
     },
-    form: {
-      width: '100%',
-      marginTop: theme.spacing(3),
+    formHeader: {
+      fontWeight: 'bold'
     },
     submit: {
       margin: theme.spacing(3, 0, 2),
@@ -50,10 +49,12 @@ const useStyles = makeStyles((theme) => ({
       borderRadius: '50%',
     },
     forms:{
-      width:'100%',
-      height:'100%',
-      border: 10
-      
+      width:'300px',
+      height:'400px',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     formControl:{
       margin: "3px",
@@ -62,11 +63,14 @@ const useStyles = makeStyles((theme) => ({
       width:'85%'
     },
     formButton:{
-     
-      width:'85%',
-      backgroundColor: "#3f51b5",
-      color: "white",
-      borderRadius: "3px"
+      margin: '20px auto',
+      borderWidth: 0,
+      outline: 'none',
+      borderRadius: '2px',
+      backgroundColor: '#b3b3b3',
+      color: '#ffffff',
+      height: '50px',
+      width: '100px'
     },
     bioLink:{
       width:'85%'
@@ -252,11 +256,9 @@ function unfollow (id){
   }
   function FollowingList(){
     const handleClick = (event) => {
-      //setAnchorEl(event.currentTarget);
       console.log("click");
       if(!showFollowingList)
         setSFLL(true);
-      
     };
   
     const handleClose = () => {
@@ -319,7 +321,6 @@ function unfollow (id){
      let temp2;
     
     const handleClick = (event) => {
-      //setAnchorEl(event.currentTarget);
       if(!popOpen)
         setPopOpen(true);
       
@@ -354,39 +355,33 @@ function unfollow (id){
         vertical: 'top',
         horizontal: 'center',
       }}
-      // PaperProps={{
-      //   style: { width: '70%',
-      //   height:'70vh'},
-      //   }}
     >
-      <form>
-      <label for="link">Link</label>
-      <input
-                        type="text"
-                        name="link"
-                        id="link"
-                        className={classes.bioLink}
-                        
-                        onChange={ event => {temp2=( event.target.value )} } 
-                        />
-    <br/>
-    <label for="Bio">Bio</label><br/>
-     <textarea
-                        
-                        name="Bio"
-                        id="Bio"
-                        className={classes.bioText}
-                        rows={10}
-                        onChange={ event => {temp=( event.target.value )} } 
-                        />
-                        <br/>
-      <button
-                            type="button"
-                            className={classes.formButton}
-                            onClick={ () => updateBio(temp,temp2) }>
-                            Add
-                        </button>            
-     </form>
+      <form className={`${classes.forms}`}>
+        <br/>
+        <label for="link" className={`${classes.formHeader}`}>Link</label>
+        <input
+          type="text"
+          name="link"
+          id="link"
+          className={classes.bioLink}
+          
+          onChange={ event => {temp2=( event.target.value )} } 
+        />
+        <label for="Bio" className={`${classes.formHeader}`}>Bio</label>
+        <textarea
+          name="Bio"
+          id="Bio"
+          className={classes.bioText}
+          rows={10}
+          onChange={ event => {temp=( event.target.value )} } 
+        />
+        <button
+          type="button"
+          className={classes.formButton}
+          onClick={ () => updateBio(temp,temp2) }>
+          ADD
+        </button>            
+      </form>
     </Popover></div>;
     if(par.id!=localStorage.getItem('loggedInId'))
       return <><button onClick={()=>follow(par.id)}>Follow Me</button></>;
@@ -421,31 +416,17 @@ function unfollow (id){
           .then((res)=>{console.log(res)
             conn.get("/posts/authors/"+par.id,{params:{loggedInId : localStorage.getItem('loggedInId')}})
           .then((res) => {
-            //console.log(res.data.data);
              t=res.data.data;
-            
             setPosts(t);
           });});
-        
-        
    };
   reader.readAsDataURL(inFile);
-
-    
   }
   function PostInformationForm(){
-    
-    
-    
     const handleClick = (event) => {
-      //setAnchorEl(event.currentTarget);
       if(!popOpen)
       setPosting(true);
-      
     };
-  
-   
-  
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
     let pop=<div><Button aria-describedby={id} variant="contained" color="primary" onClick={handleClick}>
@@ -516,7 +497,6 @@ function unfollow (id){
                         name="photo"
                         id="photo"
                         className={classes.formControl}
-                        //onChange={handleImageChange}
                         ref={fileInput}
                         onChange={ event => {formData.file=( event.target.files[0])} } 
                     
@@ -558,7 +538,6 @@ function unfollow (id){
                         id="products"
 
                         className={classes.formControl}
-                        //onChange={handleImageChange}
                         ref={fileInput}
                         onChange={event => {formData.lookTime=( event.target.value)}} 
                     
@@ -594,11 +573,8 @@ function unfollow (id){
                         placehoder = "enter the name and type of products here"
                         ref={fileInput}
                         onChange={event => {formData.products=( event.target.value)}} 
-                    
                         />
                         </Grid>
-                        
-     
                         <Grid item xs={12} >
                         <button
                             type="button"
@@ -609,15 +585,10 @@ function unfollow (id){
                         </button> 
                           </Grid>                 
       </Grid>
-     
-   
-                
      </form>
     </Popover>
     }
-    
     function ShowImg(val){
-      //console.log(val);
       const [pic, setPic] = useState('');
      
         useEffect(()=>{
@@ -633,10 +604,7 @@ function unfollow (id){
          var reader = new FileReader();
          let y;
          reader.onload = function() {
-            // alert(reader.result);
-            //console.log(reader.result);
              setPic(reader.result);
-             
          }
          reader.readAsText(blob);
         }
@@ -652,11 +620,7 @@ function unfollow (id){
         <Grid item xs={4} key={ i }>
           <Post post={x}/>
           </Grid>)
-         
     }</Grid>
-  
-     
-     
     }
    const hc=(event)=>{
     setAnchorEl(event.currentTarget);
@@ -671,7 +635,7 @@ function unfollow (id){
             <Grid className={classes.profilepicgrid} item xs={2} rs={3} spacing={30}>
               <img src="https://via.placeholder.com/150" className={classes.profilePic}></img>
             </Grid>
-            <Grid id="info" item container xs={7} spacing={1} justify='center' alignItems='flex-start'>
+            <Grid id="info" item container xs spacing={1} justify='center' alignItems='flex-start'>
               <Grid item xs={6} >
                 <Paper className={classes.username} variant='outlined'>{username}</Paper>
               </Grid>

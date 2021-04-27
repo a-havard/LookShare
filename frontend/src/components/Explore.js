@@ -18,8 +18,6 @@ const useStyles = makeStyles((theme) => ({
     grid:{
       marginTop: theme.spacing(0),
       marginLeft: theme.spacing(1),
-
-      
     },
     logo:{
       float: "center",
@@ -80,15 +78,14 @@ const useStyles = makeStyles((theme) => ({
       width:'80%',
       marginLeft:'10%'
     },
-    postsGrid:{width:'80%',
-    marginLeft:'10%',
+    postsGrid:{
+      width:'80%',
+      marginLeft:'10%',
+      marginTop: '2%'
     },
     explorePost:{
     }
-    
   }))
-
- 
  
 var loaded=false;
 const ExplorePage =()=>{
@@ -122,50 +119,30 @@ useEffect(() => {
   if(posts.length==0){
     conn.get("/posts",{params:{loggedInId : localStorage.getItem('loggedInId')}})
         .then((res) => {
-      //console.log(res.data.data);
             setPosts(res.data.data);
-      
-   
-      //console.log(posts);
             var pics=[];
             let i=0;
-    
-
-    
     });
-    
-   
-   
   }
 });
  
     function FormRow() {
       let items=[];
       
-      
       return <Grid  item container xs={100} spacing={3} className={classes.postsGrid}>{
         posts.map((x,i)=> 
         <Grid item xs={4} key={ i }  className= {classes.explorePost}>
           <Post post={x}/>
           </Grid>)
-         
     }</Grid>
-  
-     
-     
     }
    const hc=(event)=>{
     setAnchorEl(event.currentTarget);
    }
     return(<>
-
-      <h1> EXPLORE LOOKS</h1>
-
             <Header/>
-      
      <FormRow className={classes.postsGrid}/>
      </>
-      
     );
 }
 

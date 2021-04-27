@@ -63,8 +63,14 @@ const useStyles = makeStyles((theme) => ({
       width:'85%'
     },
     formButton:{
-     
-      width:'85%'
+      margin: '20px auto',
+      borderWidth: 0,
+      outline: 'none',
+      borderRadius: '2px',
+      backgroundColor: '#b3b3b3',
+      color: '#ffffff',
+      height: '50px',
+      width: '100px'
     },
     like:{
         height: '10vh'
@@ -72,30 +78,14 @@ const useStyles = makeStyles((theme) => ({
     popoverPic:{
         width:'40vw'
     },
-    lookDifficult:{
-      backgroundColor: '#dce0fa',
+    formText: {
+      fontWeight: 'bold'
     },
-    lookTimes:{
-      backgroundColor: '#dce0fa',
-    },
-    lookType:{
-      backgroundColor: '#dce0fa',
-    },
-    overlay: {
-      backgroundColor:'#dce0fa',
-    },
-    commentGrid: {
-      backgroundColor:'#dce0fa',
-    },
-    lookFull: {
-      //backgroundColor: 'lightblue'
-    },
-    lookProducts : {
-      backgroundColor:'#dce0fa',
+    username: {
+      color: 'blue',
+      textDecoration: 'none',
+      fontSize: '30px'
     }
-
-
-    
   }))
 const Post=props=>{
     let instructions=[];
@@ -140,14 +130,13 @@ console.log(accountData)});
         setOpen(false);
       };
      
-      return (<Card>
-        <CardActionArea onClick={()=>{setOpen(true);}}>
-       
-        <CardContent>
-          <ShowImg val={props.post.photo}/>
-          </CardContent>
-      </CardActionArea>
-     
+      return (
+        <Card variant='outlined'>
+          <CardActionArea onClick={()=>{setOpen(true);}}>
+            <CardContent>
+              <ShowImg val={props.post.photo}/>
+            </CardContent>
+          </CardActionArea>
 <Popover 
         className={classes.overlay}
         
@@ -169,12 +158,13 @@ console.log(accountData)});
         height:'70vh'},
         }}
       >
-          <a href={'/profile/'+accountData.accountId}><button>{accountData.username}</button></a>
-          <ShowImg className={classes.popoverPic}val={props.post.photo}/>
           <Grid container  maxWidth="80vw" className={classes.lookFull} spacing={2}>
-            
-              <Grid item xs={12} className={classes.lookInstructions}>
-                  <p>instructions</p>
+            <Grid container xs={3} direction='column' justify='center' alignItems='center'>
+              <a href={'/profile/'+accountData.accountId} className={classes.username}>{accountData.username}</a>
+              <ShowImg className={classes.popoverPic}val={props.post.photo}/>
+            </Grid>
+            <Grid container xs direction='column'>
+              <Grid item xs className={classes.formText}>
                 <ol>
                 {
                     instructions.map((x, i) => <li className="list-group-item" key={ i }>
@@ -183,17 +173,17 @@ console.log(accountData)});
                 }
                 </ol>
               </Grid>
-              <Grid item xs={4} className= {classes.lookType}>
+              <Grid item xs className= {classes.formText}>
                 <p>Type of look:{props.post.lookKind}</p>
               </Grid>
-              <Grid item xs={4} className= {classes.lookTimes}>
+              <Grid item xs className= {classes.formText}>
                 <p>Time for this look: {props.post.lookTime} minutes</p>
               </Grid>
-              <Grid item xs={4} className = {classes.lookDifficult}>
+              <Grid item xs className = {classes.formText}>
                 <p>Difficulty: {props.post.lookDifficulty}/10</p>
               </Grid>
-              <Grid item xs={12} className = {classes.lookProducts}>
-              <p>products</p>
+              <Grid item xs className = {classes.formText}>
+              <p>Products:</p>
                 <ul>
                 {
                     products.map((x, i) => <li className="list-group-item" key={ i }>
@@ -201,25 +191,36 @@ console.log(accountData)});
                     </li>)
                 }
                 </ul>
-              </Grid>
-            
-          </Grid>
-         
-          <Grid item xs={12} className = {classes.commentGrid}>
+              </Grid>          
+              <Grid item xs className = {classes.commentGrid}>
+                <Grid container direction='column'>
                   <form>
-                  <label htmlFor="comment">Comment</label>
-                    <textarea
-                        id="comment"
-                       name="comment"
-                       value={formData.comment}
-                       onChange={event => setFormData({comment: event.target.value})}
-                       className="form-control"/>
-                       <button
-                    type="button"
-                    className="btn btn-primary btn-block"
-                    onClick={ () => onAddClick() }> submit</button>
+                    <Grid item>
+                      <label htmlFor="comment" className={classes.formText}>Comment</label>
+                    </Grid>
+                    <Grid item>
+                     <textarea
+                          id="comment"
+                          name="comment"
+                          value={formData.comment}
+                          onChange={event => setFormData({comment: event.target.value})}
+                          className="form-control"
+                          rows='5' cols='70'
+                      />
+                    </Grid>
+                    <Grid>
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-block"
+                        onClick={ () => onAddClick() }>Submit
+                      </button>
+                    </Grid>
                   </form>
-                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
+
                   <ul className="list-group">
         <Grid item xs={12}>
             <ul>
@@ -291,6 +292,5 @@ console.log(accountData)});
         
       }
     return <p>filler</p>;
-   
 }
 export default Post;
