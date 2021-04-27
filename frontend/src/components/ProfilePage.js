@@ -47,6 +47,7 @@ const useStyles = makeStyles((theme) => ({
     },
     profilePic:{
       borderRadius: '50%',
+      width:'15vw'
     },
     forms:{
       width:'300px',
@@ -128,6 +129,7 @@ var par=useParams();
   const [showFollowingList,setSFLL]=useState();
   const [dataUri, setDataUri] = useState('');
   const [values, setValues] = useState([]);
+  const [lastLoaded,setLast]=useState();
  let [loaded,setLoaded]=useState();
  
 useEffect(() => {
@@ -136,12 +138,15 @@ useEffect(() => {
   var id=parseInt(par.id);
   var logged=''+localStorage.getItem('loggedInId');
   console.log(logged);
-  if (!pageLoaded) {
+  
+  if (!pageLoaded||id!=lastLoaded) {
    
     conn.get("/accounts/"+par.id,{params:{loggedInId : logged}})
     .then((res) => {
         console.log(res.data);
-
+        setLast(res.data.data.userId)
+        setLoaded(false);
+        setPic('');
         setUsername(''+res.data.data.username);
         if(res.data.data.bio)
           setBio(''+res.data.data.bio);
@@ -151,10 +156,14 @@ useEffect(() => {
         setFollowers(res.data.data.followers);
         if(res.data.data.following)
         setFollowing(res.data.data.following);
-        if(res.data.data.profilePicture){
+        if(res.data.data.profilePicture)
           setProfilePic(res.data.data.profilePicture);
-          
+        else{
+          setProfilePic("https://via.placeholder.com/150");
         }
+        
+          
+        
         
         loaded=true;
       })
@@ -171,7 +180,7 @@ useEffect(() => {
       var pics=[];
       let i=0;
     });
-    setPageLoaded(true);
+    setPageLoaded(true);  
   }
 });
  function openFollowers(){
@@ -665,7 +674,7 @@ function unfollow (id){
     function ShowImg(){
      
       useEffect(()=>{
-        if(!loaded){
+        if(!loaded && profilePic!="https://via.placeholder.com/150"){
           bufferToImage();
           
         }
@@ -702,7 +711,7 @@ function unfollow (id){
         }
       }
      
-     return <img src={pic} className={classes.postPicture} onClick={()=>{
+     return <img src={pic} className={classes.profilePic} onClick={()=>{
       setPPP(true);}}/>;
       
     }

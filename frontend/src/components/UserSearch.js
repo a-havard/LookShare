@@ -46,6 +46,7 @@ const UserSearch = () => {
                 path+=id;
             else
                 path+=localStorage.loggedInId
+            console.log(path);
             history.push(path);
         });
     }
