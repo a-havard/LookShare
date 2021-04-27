@@ -13,7 +13,11 @@ const useStyles = makeStyles({
     linkText: {
         textDecoration: `none`,
         textTransform: `uppercase`,
-        color: `white`
+        color: `white`,
+        '&:hover': {
+            textDecoration:'none',
+            color:'white'
+        }
     }
 });
 
@@ -35,7 +39,7 @@ const Header = () => {
                     <ListItem button>
                             <ListItemText primary={'Explore'} />
                     </ListItem>
-                </a>
+                    </a>
                     <a href={'/profile/' + localStorage.loggedInId} key={'My Profile'} className={classes.linkText}>
                         <ListItem button>
                             <ListItemText primary={'My Profile'} />
