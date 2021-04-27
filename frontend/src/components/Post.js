@@ -114,7 +114,6 @@ const Post=props=>{
     useEffect(()=> {
       if(!loaded){
          setIns(props.post.instructions);
-         console.log(props.post.instructions);
         setProds(props.post.products);
         if(accountData.accountId==-1){
     conn.get("/accounts/"+props.post.authorId,{params:{loggedInId : localStorage.loggedInId}})
@@ -125,14 +124,14 @@ const Post=props=>{
     conn.get("/comments/posts/"+props.post.postId)
     .then((res)=>{
         setComments(res.data.data);
-        console.log(res.data.data)
+      
     })
 }
 setLoaded(true);
 console.log(accountData)}});
     
 
-    console.log(props);
+
     const [anchorEl, setAnchorEl] = React.useState(null);
     const classes = useStyles();
     let [openPost,setOpen]=useState();
@@ -279,6 +278,7 @@ console.log(accountData)}});
         
        
           useEffect(()=>{
+            
             if(!pic){
               bufferToImage();
             }

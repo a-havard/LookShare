@@ -661,19 +661,20 @@ function unfollow (id){
     </Popover>
     }
     function ShowImg(){
-      console.log(profilePic);
+     
       useEffect(()=>{
         if(!loaded){
           bufferToImage();
-          loaded=true;
+          
         }
         
       });
      
       if(profilePic=="https://via.placeholder.com/150"){
         setPic("https://via.placeholder.com/150");
+        setLoaded(true);
       return <img src="https://via.placeholder.com/150" className={classes.profilePic} onClick={()=>{
-        alert( "click");
+   
         setPPP(true)}}></img>;}
         
         
@@ -692,14 +693,13 @@ function unfollow (id){
          let y;
          reader.onload = function() {
             // alert(reader.result);
-            console.log(reader.result);
              setPic(reader.result);
-             
+             setLoaded(true);
          }
          reader.readAsText(blob);
         }
       }
-      console.log(pic);
+     
      return <img src={pic} className={classes.postPicture} onClick={()=>{
       setPPP(true);}}/>;
       
@@ -730,13 +730,14 @@ function unfollow (id){
     }*/
     function changeProfilePic(data){
       setPPP(false);
+      if(loaded)
+        setLoaded(false);
       let reader = new FileReader();
       let inFile = data.file;
       reader.onloadend = () => {
         console.log(reader.result);
         setPic(data.file);
         conn.put('/accounts/'+par.id+'/profilePicture',{profilePicture: reader.result})
-          .then((res)=>{console.log(res)})
           .then(()=>{
             conn.get("/accounts/"+par.id,{params:{loggedInId : localStorage.loggedInId}}).then((res)=>{
               setProfilePic(res.data.data.profilePicture)}
