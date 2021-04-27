@@ -194,7 +194,9 @@ function unfollow (id){
   conn.delete("followers/unfollow",{params:{
     leaderId:id,
     followerId: localStorage.loggedInId
-  }}).then((res)=>{console.log(res)});
+  }}).then(()=>{
+    conn.get("/accounts/"+par.id,{params:{loggedInId : localStorage.loggedInId}})
+  .then((res) => {setFollowing(res.data.data.following)});});
 }
   function getPictures(){
     console.log(posts);
@@ -308,7 +310,7 @@ function unfollow (id){
     >
         <ul className="list-group">
         {
-            following.map((x, i) => <Grid container><Grid item xs={5}><a href={'/profile/'+x.userId}><button onClick={()=>{}}>{x.userId }</button></a></Grid><Grid item xs={2}><button onClick={()=>unfollow(x.userId)}>Unfollow</button></Grid></Grid>
+            following.map((x, i) => <Grid container><Grid item xs={5}><a href={'/profile/'+x.userId}><button onClick={()=>{}}>{x.username }</button></a></Grid><Grid item xs={2}><button onClick={()=>unfollow(x.userId)}>Unfollow</button></Grid></Grid>
          )
         }
      </ul>
@@ -346,7 +348,9 @@ function unfollow (id){
       conn.post("followers/follow",{
         leaderId:id,
         followerId: localStorage.loggedInId
-      }).then((res)=>{console.log(res)});
+      }).then(()=>{
+      conn.get("/accounts/"+par.id,{params:{loggedInId : localStorage.loggedInId}})
+    .then((res) => {setFollowers(res.data.data.followers)});});
     }
  
     const handleClose = () => {
@@ -400,8 +404,13 @@ function unfollow (id){
         </button>            
       </form>
     </Popover></div>;
-    if(par.id!=localStorage.getItem('loggedInId'))
-      return <><button onClick={()=>follow(par.id)}>Follow Me</button></>;
+    if(par.id!=localStorage.getItem('loggedInId')&&followers.includes(localStorage.loggedInId))
+      return <><button onClick={()=>{follow(par.id)}}>Follow Me</button></>;
+    else if(par.id!=localStorage.getItem('loggedInId')&&followers.includes(localStorage.loggedInId))
+        return <><button onClick={()=>{unfollow(par.id)}}>unfollow Me</button></>;
+    else if(par.id!=localStorage.getItem('loggedInId')){
+      return <></>
+    }
     return (
       pop
     );
@@ -716,29 +725,7 @@ function unfollow (id){
       
     }
 
-    /*function ShowImg(val){
-      const [pic, setPic] = useState('');
-     
-        useEffect(()=>{
-          if(!pic){
-            bufferToImage();
-          }
-        },[]);
-        const bufferToImage= async ()=>{
-          var arrayBufferView = new Uint8Array( val.val.data );
-          var blob = new Blob( [arrayBufferView]);
-        
-         var imageUrl = URL.createObjectURL( blob );
-         var reader = new FileReader();
-         let y;
-         reader.onload = function() {
-             setPic(reader.result);
-         }
-         reader.readAsText(blob);
-        }
-     return <img src={pic} className={classes.postPicture}/>;
-      
-    }*/
+    
     function changeProfilePic(data){
       setPPP(false);
       if(loaded)
