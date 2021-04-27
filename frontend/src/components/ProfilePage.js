@@ -103,7 +103,7 @@ const useStyles = makeStyles((theme) => ({
  
 var loaded=false;
 const ProfilePage =()=>{
-  console.log("test");
+ 
   const [anchorEl, setAnchorEl] = React.useState(null);
   //const [params,setParams]=React.useState(null);
 var par=useParams();
@@ -135,14 +135,19 @@ useEffect(() => {
   var id=parseInt(par.id);
   var logged=''+localStorage.getItem('loggedInId');
   console.log(logged);
-  
-  if (!pageLoaded||id!=lastLoaded) {
+  if(par.id!=lastLoaded){
+    setLast(par.id);
+    setPageLoaded(false);
+
+    console.log(lastLoaded)
+  }
+  if (!pageLoaded) {
     setPageLoaded(true);
 
     conn.get("/accounts/"+par.id,{params:{loggedInId : logged}})
     .then((res) => {
         console.log(res.data);
-        setLast(par.id)
+        
         setLoaded(false);
         setPic('');
         setUsername(''+res.data.data.username);
@@ -704,8 +709,9 @@ function unfollow (id){
         
         const bufferToImage= async ()=>{
           if(profilePic=="https://via.placeholder.com/150"||profilePic==''||!profilePic){
-            setPic("https://via.placeholder.com/150");
-            return;}
+            setPic("https://via.placeholder.com/150");}
+          else{  
+      
          
           console.log(profilePic);
           if(profilePic){
@@ -723,9 +729,13 @@ function unfollow (id){
          reader.readAsText(blob);
         }
       }
-     
+      }
+     if(par.id==localStorage.loggedInId){
      return <img src={pic} className={classes.profilePic} onClick={()=>{
       setPPP(true);}}/>;
+      
+    }
+    return <img src={pic} className={classes.profilePic} />;
       
     }
 
@@ -768,6 +778,7 @@ function unfollow (id){
     return(
       <>
       <Header />
+      <ProfilePicPopover/>
       <PostingPopover/>
       <Card className={classes.bio} variant='outlined'>
         <CardContent className={classes.bioInfo}>
