@@ -140,11 +140,12 @@ useEffect(() => {
   console.log(logged);
   
   if (!pageLoaded||id!=lastLoaded) {
-   
+    setPageLoaded(true);
+
     conn.get("/accounts/"+par.id,{params:{loggedInId : logged}})
     .then((res) => {
         console.log(res.data);
-        setLast(res.data.data.userId)
+        setLast(par.id)
         setLoaded(false);
         setPic('');
         setUsername(''+res.data.data.username);
@@ -156,8 +157,8 @@ useEffect(() => {
         setFollowers(res.data.data.followers);
         if(res.data.data.following)
         setFollowing(res.data.data.following);
-        if(res.data.data.profilePicture)
-          setProfilePic(res.data.data.profilePicture);
+        if(res.data.data.profilePicture){
+          setProfilePic(res.data.data.profilePicture);}
         else{
           setProfilePic("https://via.placeholder.com/150");
         }
@@ -180,7 +181,7 @@ useEffect(() => {
       var pics=[];
       let i=0;
     });
-    setPageLoaded(true);  
+      
   }
 });
  function openFollowers(){
@@ -404,10 +405,10 @@ function unfollow (id){
         </button>            
       </form>
     </Popover></div>;
-    if(par.id!=localStorage.getItem('loggedInId')&&followers.includes(localStorage.loggedInId))
-      return <><button onClick={()=>{follow(par.id)}}>Follow Me</button></>;
-    else if(par.id!=localStorage.getItem('loggedInId')&&followers.includes(localStorage.loggedInId))
-        return <><button onClick={()=>{unfollow(par.id)}}>unfollow Me</button></>;
+    if(par.id!=localStorage.getItem('loggedInId')&&followers.includes(localStorage.getItem('loggedInId'))==false)
+      return <><button onClick={()=>{follow(par.id)}}>Follow</button></>;
+    else if(par.id!=localStorage.getItem('loggedInId')&&followers.includes(localStorage.getItem('loggedInId')))
+        return <><button onClick={()=>{unfollow(par.id)}}>Unfollow </button></>;
     else if(par.id!=localStorage.getItem('loggedInId')){
       return <></>
     }
