@@ -68,7 +68,7 @@ const SignIn = () => {
       Accounts.getAccount(accountData)
         .then((res)=>{
           localStorage.loggedInId=res.data.data;
-            window.location.href = window.location.hostname+res.data.data;
+            window.location.href = "/profile/" +res.data.data;
         })
         .catch(()=>{console.log("Wrong username/password")});
     }
