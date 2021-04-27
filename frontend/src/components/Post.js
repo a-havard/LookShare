@@ -88,6 +88,8 @@ const useStyles = makeStyles((theme) => ({
     }
   }))
 const Post=props=>{
+    const [loaded,setLoaded]=useState();
+    const [pic, setPic] = useState('');
     let instructions=[];
     let products=[];
     let ratings=[1,2,3,4,5,6,7,8,9,10];
@@ -103,6 +105,7 @@ const Post=props=>{
         comment:''
     });
     useEffect(()=> {
+      if(!loaded){
          instructions=props.post.instructions.split('\n');
          products=props.post.products.split('\n');
         if(accountData.accountId==-1){
@@ -117,7 +120,8 @@ const Post=props=>{
 
     })
 }
-console.log(accountData)});
+setLoaded(true);
+console.log(accountData)}});
     
 
     console.log(props);
@@ -266,7 +270,7 @@ console.log(accountData)});
 
     function ShowImg(val){
         //console.log(val);
-        const [pic, setPic] = useState('');
+        
        
           useEffect(()=>{
             if(!pic){
