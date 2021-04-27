@@ -90,8 +90,9 @@ const useStyles = makeStyles((theme) => ({
 const Post=props=>{
     const [loaded,setLoaded]=useState();
     const [pic, setPic] = useState('');
-    let instructions=[];
-    let products=[];
+    let [instructions, setIns]=useState();
+    let [products, setProds]=useState();
+    
     let ratings=[1,2,3,4,5,6,7,8,9,10];
     let [accountData,setAccountData]=useState({
         username:'',
@@ -106,8 +107,9 @@ const Post=props=>{
     });
     useEffect(()=> {
       if(!loaded){
-         instructions=props.post.instructions.split('\n');
-         products=props.post.products.split('\n');
+         setIns(props.post.instructions);
+         console.log(props.post.instructions);
+        setProds(props.post.products);
         if(accountData.accountId==-1){
     conn.get("/accounts/"+props.post.authorId,{params:{loggedInId : localStorage.loggedInId}})
     .then((res) => {setAccountData({
@@ -169,13 +171,13 @@ console.log(accountData)}});
             </Grid>
             <Grid container xs direction='column'>
               <Grid item xs className={classes.formText}>
-                <ol>
-                {
-                    instructions.map((x, i) => <li className="list-group-item" key={ i }>
-                        {x}
-                    </li>)
-                }
-                </ol>
+                <h2>Instructions</h2>
+                <ul>
+                  {instructions ? instructions.split('\n').map(instruction => {
+                    return(<li><p>{instruction}</p></li>)
+                  }) : null}
+                </ul>
+              
               </Grid>
               <Grid item xs className= {classes.formText}>
                 <p>Type of look:{props.post.lookKind}</p>
@@ -187,13 +189,11 @@ console.log(accountData)}});
                 <p>Difficulty: {props.post.lookDifficulty}/10</p>
               </Grid>
               <Grid item xs className = {classes.formText}>
-              <p>Products:</p>
+              <h2>Products</h2>
                 <ul>
-                {
-                    products.map((x, i) => <li className="list-group-item" key={ i }>
-                        {x}
-                    </li>)
-                }
+                  {products ? products.split('\n').map(product => {
+                    return(<li><p>{product}</p></li>)
+                  }) : null}
                 </ul>
               </Grid>          
               <Grid item xs className = {classes.commentGrid}>
