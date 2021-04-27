@@ -20,8 +20,8 @@ class Profile {
   static getProfile(id) {
      
     const profileConn=Axios.create({
-       
-        baseURL: "http://localhost:8000",
+
+        baseURL: window.location.hostname,
         
         
     });
