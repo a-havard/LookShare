@@ -6,10 +6,10 @@ import { makeStyles } from '@material-ui/core/styles';
 const useStyles = makeStyles({
     searchForm: {
         display: 'flex',
-        alignItems: 'center'
+        alignItems: 'center',
     },
     spacing: {
-        marginRight: '20px'
+        margin: '0 20px 0 10px'
     },
     textbox: {
         height: '50%',
@@ -52,7 +52,7 @@ const UserSearch = () => {
     return <form className={`${classes.searchForm}`}>
         <label className={`${classes.spacing}`}>
             USER SEARCH
-            </label>
+        </label>
         <input className={`${classes.spacing} ${classes.textbox}`}
             type="text"
             name="userName"
