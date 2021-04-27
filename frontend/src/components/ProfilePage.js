@@ -696,9 +696,10 @@ function unfollow (id){
       if(profilePic=="https://via.placeholder.com/150"){
         setPic("https://via.placeholder.com/150");
         setLoaded(true);
-      return <img src="https://via.placeholder.com/150" className={classes.profilePic} onClick={()=>{
-   
-        setPPP(true)}}></img>;}
+        return <img src={pic} className={classes.profilePic} onClick={()=>{
+          setPPP(true);}}/>;
+          
+        }
         
         
         const bufferToImage= async ()=>{
@@ -772,7 +773,7 @@ function unfollow (id){
         <CardContent className={classes.bioInfo}>
           <Grid container component="main" className={classes.grid}> 
             <Grid className={classes.profilepicgrid} item xs={4} rs={3} >
-              <img src="https://via.placeholder.com/150" className={classes.profilePic}></img>
+              <ShowImg/>
             </Grid>
             <Grid id="info" item container xs={4} spacing={1} justify='flex-start' alignItems='center'>
               <Grid item xs={7} >
