@@ -47,6 +47,7 @@ const useStyles = makeStyles((theme) => ({
     },
     profilePic:{
       borderRadius: '50%',
+      width:'15vw'
     },
     forms:{
       width:'300px',
@@ -73,7 +74,6 @@ const useStyles = makeStyles((theme) => ({
       height:'75%'
     },
     bioInfo:{
-      width:'80%'
     },
     bio:{
       width:'80%',
@@ -91,6 +91,9 @@ const useStyles = makeStyles((theme) => ({
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
+    },
+    followGrid: {
+      padding: '20px'
     }
   }))
 
@@ -109,6 +112,10 @@ var par=useParams();
   let [bioLink,setBioLink]=useState('');
   let [followers,setFollowers]=useState([]);
   let [following,setFollowing]=useState([]);
+  let [profilePic,setProfilePic]=useState();
+  let [pageLoaded,setPageLoaded]=useState();
+  const [pic, setPic] = useState('');
+  let [openPPP,setPPP]=useState();
   let [posts,setPosts]=useState([]);
   let [popOpen,setPopOpen]=useState();
   let [addingPost,setPosting]=useState();
@@ -117,7 +124,8 @@ var par=useParams();
   const [showFollowingList,setSFLL]=useState();
   const [dataUri, setDataUri] = useState('');
   const [values, setValues] = useState([]);
- 
+  const [lastLoaded,setLast]=useState();
+ let [loaded,setLoaded]=useState();
  
 useEffect(() => {
 
@@ -125,12 +133,15 @@ useEffect(() => {
   var id=parseInt(par.id);
   var logged=''+localStorage.getItem('loggedInId');
   console.log(logged);
-  if (!username) {
+  
+  if (!pageLoaded||id!=lastLoaded) {
    
     conn.get("/accounts/"+par.id,{params:{loggedInId : logged}})
     .then((res) => {
         console.log(res.data);
-
+        setLast(res.data.data.userId)
+        setLoaded(false);
+        setPic('');
         setUsername(''+res.data.data.username);
         if(res.data.data.bio)
           setBio(''+res.data.data.bio);
@@ -140,7 +151,11 @@ useEffect(() => {
         setFollowers(res.data.data.followers);
         if(res.data.data.following)
         setFollowing(res.data.data.following);
-       
+        if(res.data.data.profilePicture)
+          setProfilePic(res.data.data.profilePicture);
+        else{
+          setProfilePic("https://via.placeholder.com/150");
+        }
         
         loaded=true;
       })
@@ -157,6 +172,7 @@ useEffect(() => {
       var pics=[];
       let i=0;
     });
+    setPageLoaded(true);  
   }
 });
  function openFollowers(){
@@ -170,7 +186,9 @@ function unfollow (id){
   conn.delete("followers/unfollow",{params:{
     leaderId:id,
     followerId: localStorage.loggedInId
-  }}).then((res)=>{console.log(res)});
+  }}).then(()=>{
+    conn.get("/accounts/"+par.id,{params:{loggedInId : localStorage.loggedInId}})
+  .then((res) => {setFollowing(res.data.data.following)});});
 }
   function getPictures(){
     console.log(posts);
@@ -232,12 +250,19 @@ function unfollow (id){
       }}
       PaperProps={{
         style: { width: '20%',
-        height:'70vh'},
+        height:'20vh'},
         }}
     >
         <ul className="list-group">
         {
-            followers.map((x, i) => <div><a href={'/profile/'+x.userId}><button onClick={()=>{console.log(x)}}>{x.username }</button></a><br/></div>
+            followers.map((x, i) => 
+              <Grid container direction='row' justify='center' alignItems='center' className={classes.followGrid}>
+                <Grid item>
+                  <a href={'/profile/'+x.userId}>
+                    <button onClick={()=>{}} className='btn btn-primary'>{x.username }</button>
+                  </a>
+                </Grid>
+              </Grid>
          )
         }
      </ul>
@@ -279,12 +304,22 @@ function unfollow (id){
       }}
       PaperProps={{
         style: { width: '20%',
-        height:'70vh'},
+        height:'20vh'},
         }}
     >
         <ul className="list-group">
         {
-            following.map((x, i) => <Grid container><Grid item xs={5}><a href={'/profile/'+x.userId}><button onClick={()=>{}}>{x.userId }</button></a></Grid><Grid item xs={2}><button onClick={()=>unfollow(x.userId)}>Unfollow</button></Grid></Grid>
+            following.map((x, i) => 
+            <Grid container justify='center' className={classes.followGrid}>
+              <Grid item xs={8}>
+                <a href={'/profile/'+x.userId}>
+                  <button onClick={()=>{}} className='btn btn-primary'>{x.username }</button>
+                </a>
+              </Grid>
+              <Grid item xs={4}>
+                <button onClick={()=>unfollow(x.userId)} className='btn btn-warning'>Unfollow</button>
+              </Grid>
+            </Grid>
          )
         }
      </ul>
@@ -322,7 +357,9 @@ function unfollow (id){
       conn.post("followers/follow",{
         leaderId:id,
         followerId: localStorage.loggedInId
-      }).then((res)=>{console.log(res)});
+      }).then(()=>{
+      conn.get("/accounts/"+par.id,{params:{loggedInId : localStorage.loggedInId}})
+    .then((res) => {setFollowers(res.data.data.followers)});});
     }
  
     const handleClose = () => {
@@ -376,8 +413,13 @@ function unfollow (id){
         </button>            
       </form>
     </Popover></div>;
-    if(par.id!=localStorage.getItem('loggedInId'))
-      return <><button onClick={()=>follow(par.id)}>Follow Me</button></>;
+    if(par.id!=localStorage.getItem('loggedInId')&&followers.includes(localStorage.loggedInId))
+      return <><button onClick={()=>{follow(par.id)}}>Follow Me</button></>;
+    else if(par.id!=localStorage.getItem('loggedInId')&&followers.includes(localStorage.loggedInId))
+        return <><button onClick={()=>{unfollow(par.id)}}>unfollow Me</button></>;
+    else if(par.id!=localStorage.getItem('loggedInId')){
+      return <></>
+    }
     return (
       pop
     );
@@ -579,28 +621,138 @@ function unfollow (id){
      </form>
     </Popover>
     }
-    function ShowImg(val){
-      const [pic, setPic] = useState('');
+    function ProfilePicPopover(){
+      console.log("runs");
+      let formData= {
+        file: '',
+       };
+    
+      let ratings=[1,2,3,4,5,6,7,8,9,10];
+    const handleClose = () => {
+      setAnchorEl(null);
+      setPPP(false);
+    };
+    if(par.id!=localStorage.getItem('loggedInId'))
+    return <></>;
+      return <Popover 
+      className={classes.overlay}
+      
+      open={openPPP}
+      anchorPosition={{left: '0vw',top: '0vh'}
+      }
+  
+      onClose={handleClose}
+      anchorOrigin={{
+        vertical: 'top',
+        horizontal: 'center'
+      }}
+      transformOrigin={{
+        horizontal: 'center'
+      }}
+      
+      PaperProps={{
+      style: { width: '70%',
+      height:'70vh'},
+      }}
+    >
+     <h1>Please select the file for your new profile picture</h1>
+     <form className={classes.forms}>
+     <Grid container  maxWidth="80vw" className={classes.grid} spacing={2}>
+      <Grid item xs={12} >
+        <label for='photo'>Select Photo:   </label><br/>
+      <input
+                        type="file"
+                        name="photo"
+                        id="photo"
+                        className={classes.formControl}
+                        //onChange={handleImageChange}
+                        ref={fileInput}
+                        onChange={ event => {formData.file=( event.target.files[0])} } 
+                    
+                        />
+                        </Grid>
+                        <Grid item xs={12} >
+                        <button
+                            type="button"
+                            className={classes.formButton}
+                            color = "blue"
+                            onClick={ () => {changeProfilePic(formData)} }>
+                            Post it
+                        </button> 
+                          </Grid>                 
+      </Grid>
      
-        useEffect(()=>{
-          if(!pic){
-            bufferToImage();
-          }
-        },[]);
+   
+                
+     </form>
+    </Popover>
+    }
+    function ShowImg(){
+     
+      useEffect(()=>{
+        if(!loaded && profilePic!="https://via.placeholder.com/150"){
+          bufferToImage();
+          
+        }
+        
+      });
+     
+      if(profilePic=="https://via.placeholder.com/150"){
+        setPic("https://via.placeholder.com/150");
+        setLoaded(true);
+      return <img src="https://via.placeholder.com/150" className={classes.profilePic} onClick={()=>{
+   
+        setPPP(true)}}></img>;}
+        
+        
         const bufferToImage= async ()=>{
-          var arrayBufferView = new Uint8Array( val.val.data );
+          if(profilePic=="https://via.placeholder.com/150"||profilePic==''||!profilePic){
+            setPic("https://via.placeholder.com/150");
+            return;}
+         
+          console.log(profilePic);
+          if(profilePic){
+          var arrayBufferView = new Uint8Array( profilePic.data );
           var blob = new Blob( [arrayBufferView]);
         
          var imageUrl = URL.createObjectURL( blob );
          var reader = new FileReader();
          let y;
          reader.onload = function() {
+            // alert(reader.result);
              setPic(reader.result);
+             setLoaded(true);
          }
          reader.readAsText(blob);
         }
-     return <img src={pic} className={classes.postPicture}/>;
+      }
+     
+     return <img src={pic} className={classes.profilePic} onClick={()=>{
+      setPPP(true);}}/>;
       
+    }
+
+    
+    function changeProfilePic(data){
+      setPPP(false);
+      if(loaded)
+        setLoaded(false);
+      let reader = new FileReader();
+      let inFile = data.file;
+      reader.onloadend = () => {
+        console.log(reader.result);
+        setPic(data.file);
+        conn.put('/accounts/'+par.id+'/profilePicture',{profilePicture: reader.result})
+          .then(()=>{
+            conn.get("/accounts/"+par.id,{params:{loggedInId : localStorage.loggedInId}}).then((res)=>{
+              setProfilePic(res.data.data.profilePicture)}
+            );
+          });
+      }
+      reader.readAsDataURL(inFile);
+
+
+          
     }
     function FormRow() {
       let items=[];
@@ -622,25 +774,25 @@ function unfollow (id){
       <PostingPopover/>
       <Card className={classes.bio} variant='outlined'>
         <CardContent className={classes.bioInfo}>
-          <Grid container component="main" maxWidth="80vw" className={classes.grid} spacing={2}> 
-            <Grid className={classes.profilepicgrid} item xs={2} rs={3} spacing={30}>
+          <Grid container component="main" className={classes.grid}> 
+            <Grid className={classes.profilepicgrid} item xs={4} rs={3} >
               <img src="https://via.placeholder.com/150" className={classes.profilePic}></img>
             </Grid>
-            <Grid id="info" item container xs spacing={1} justify='center' alignItems='flex-start'>
-              <Grid item xs={6} >
+            <Grid id="info" item container xs={4} spacing={1} justify='flex-start' alignItems='center'>
+              <Grid item xs={7} >
                 <Paper className={classes.username} variant='outlined'>{username}</Paper>
               </Grid>
-              <Grid item xs alignItems='center'>
+              <Grid item xs={3}>
                 <BioForm/>
               </Grid>
-              <Grid item xs={6} rs={1}>
+              <Grid item xs rs={1}>
                 <Paper elevation = {0} onClick={hc}><FollowerList/></Paper>
               </Grid>
-              <Grid item xs={5} rs={1}>
+              <Grid item xs rs={1}>
                 <Paper elevation = {0} onClick={hc}><FollowingList/></Paper>
               </Grid>
             </Grid>
-            <Grid item xs rs={3}>
+            <Grid item xs={3} rs={2}>
               <Card elevation = {0} >
                 <CardContent>
                 <p>{bio}</p>
