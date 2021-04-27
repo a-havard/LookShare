@@ -117,6 +117,7 @@ var par=useParams();
   let [followers,setFollowers]=useState([]);
   let [following,setFollowing]=useState([]);
   let [profilePic,setProfilePic]=useState();
+  let [pageLoaded,setPageLoaded]=useState();
   const [pic, setPic] = useState('');
   let [openPPP,setPPP]=useState();
   let [posts,setPosts]=useState([]);
@@ -135,7 +136,7 @@ useEffect(() => {
   var id=parseInt(par.id);
   var logged=''+localStorage.getItem('loggedInId');
   console.log(logged);
-  if (!username) {
+  if (!pageLoaded) {
    
     conn.get("/accounts/"+par.id,{params:{loggedInId : logged}})
     .then((res) => {
@@ -170,6 +171,7 @@ useEffect(() => {
       var pics=[];
       let i=0;
     });
+    setPageLoaded(true);
   }
 });
  function openFollowers(){

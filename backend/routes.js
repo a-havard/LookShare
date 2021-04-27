@@ -603,7 +603,7 @@ module.exports = function routes(app, logger) {
             }
 
             let returnValue = rows[0];
-            sql = `SELECT followerId as userId, firstName, lastName, username FROM Followers
+            sql = `SELECT DISTINCT followerId as userId, firstName, lastName, username FROM Followers
                     INNER JOIN Accounts
                     ON userId = followerId
                     WHERE leaderId = "${accountId}"`;
@@ -618,7 +618,7 @@ module.exports = function routes(app, logger) {
               }
 
               returnValue.followers = rows;
-              sql = `SELECT leaderId as userId, firstName, lastName, username FROM Followers
+              sql = `SELECT DISTINCT leaderId as userId, firstName, lastName, username FROM Followers
                       INNER JOIN Accounts
                       ON userId = leaderId
                       WHERE followerId = "${accountId}"`;
