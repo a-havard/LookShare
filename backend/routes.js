@@ -470,7 +470,7 @@ module.exports = function routes(app, logger) {
         });
       } else {
         let postId = typeof req.params.postId === "string" ? JSON.parse(req.params.postId) : req.params.postId;
-        let sql = `SELECT * FROM Comments WHERE parentPostId = ${postId}`;
+        let sql = `SELECT c.*, a.username FROM Comments c INNER JOIN Accounts a on c.authorId = a.userId WHERE parentPostId = ${postId}`;
 
         connection.query(sql, function (err, rows, fields) {
           connection.release();
