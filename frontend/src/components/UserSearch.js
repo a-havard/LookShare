@@ -62,7 +62,7 @@ const UserSearch = () => {
             onChange={event => { searchData.userName = (event.target.value) }}
         />
         <button
-            className={`${classes.spacing} ${classes.btn}`}
+            className={`${classes.spacing} btn btn-outline-warning`}
             type="button"
             onClick={handleClick}>
                 SEARCH

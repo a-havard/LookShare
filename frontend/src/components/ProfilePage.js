@@ -58,20 +58,15 @@ const useStyles = makeStyles((theme) => ({
       alignItems: 'center',
     },
     formControl:{
-      margin: "3px",
-      border : "0",
-      boxShadow:"0 4px 4px 4px lightgray",
-      width:'85%'
+      width: '400px',
+      marginBottom: '13px'
     },
     formButton:{
       margin: '20px auto',
-      borderWidth: 0,
-      outline: 'none',
-      borderRadius: '2px',
-      backgroundColor: '#b3b3b3',
-      color: '#ffffff',
-      height: '50px',
-      width: '100px'
+    },
+    postForm: {
+      width: '100%',
+      paddingTop: '20px'
     },
     bioLink:{
       width:'85%'
@@ -81,7 +76,6 @@ const useStyles = makeStyles((theme) => ({
       height:'75%'
     },
     bioInfo:{
-      width:'80%'
     },
     bio:{
       width:'80%',
@@ -99,6 +93,9 @@ const useStyles = makeStyles((theme) => ({
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
+    },
+    followGrid: {
+      padding: '20px'
     }
   }))
 
@@ -106,7 +103,7 @@ const useStyles = makeStyles((theme) => ({
  
 var loaded=false;
 const ProfilePage =()=>{
-  console.log("test");
+ 
   const [anchorEl, setAnchorEl] = React.useState(null);
   //const [params,setParams]=React.useState(null);
 var par=useParams();
@@ -138,13 +135,19 @@ useEffect(() => {
   var id=parseInt(par.id);
   var logged=''+localStorage.getItem('loggedInId');
   console.log(logged);
-  
-  if (!pageLoaded||id!=lastLoaded) {
-   
+  if(par.id!=lastLoaded){
+    setLast(par.id);
+    setPageLoaded(false);
+
+    console.log(lastLoaded)
+  }
+  if (!pageLoaded) {
+    setPageLoaded(true);
+
     conn.get("/accounts/"+par.id,{params:{loggedInId : logged}})
     .then((res) => {
         console.log(res.data);
-        setLast(res.data.data.userId)
+        
         setLoaded(false);
         setPic('');
         setUsername(''+res.data.data.username);
@@ -156,14 +159,11 @@ useEffect(() => {
         setFollowers(res.data.data.followers);
         if(res.data.data.following)
         setFollowing(res.data.data.following);
-        if(res.data.data.profilePicture)
-          setProfilePic(res.data.data.profilePicture);
+        if(res.data.data.profilePicture){
+          setProfilePic(res.data.data.profilePicture);}
         else{
           setProfilePic("https://via.placeholder.com/150");
         }
-        
-          
-        
         
         loaded=true;
       })
@@ -180,7 +180,7 @@ useEffect(() => {
       var pics=[];
       let i=0;
     });
-    setPageLoaded(true);  
+      
   }
 });
  function openFollowers(){
@@ -194,7 +194,9 @@ function unfollow (id){
   conn.delete("followers/unfollow",{params:{
     leaderId:id,
     followerId: localStorage.loggedInId
-  }}).then((res)=>{console.log(res)});
+  }}).then(()=>{
+    conn.get("/accounts/"+par.id,{params:{loggedInId : localStorage.loggedInId}})
+  .then((res) => {setFollowing(res.data.data.following)});});
 }
   function getPictures(){
     console.log(posts);
@@ -256,12 +258,19 @@ function unfollow (id){
       }}
       PaperProps={{
         style: { width: '20%',
-        height:'70vh'},
+        height:'20vh'},
         }}
     >
         <ul className="list-group">
         {
-            followers.map((x, i) => <div><a href={'/profile/'+x.userId}><button onClick={()=>{console.log(x)}}>{x.username }</button></a><br/></div>
+            followers.map((x, i) => 
+              <Grid container direction='row' justify='center' alignItems='center' className={classes.followGrid}>
+                <Grid item>
+                  <a href={'/profile/'+x.userId}>
+                    <button onClick={()=>{}} className='btn btn-primary'>{x.username }</button>
+                  </a>
+                </Grid>
+              </Grid>
          )
         }
      </ul>
@@ -303,12 +312,22 @@ function unfollow (id){
       }}
       PaperProps={{
         style: { width: '20%',
-        height:'70vh'},
+        height:'20vh'},
         }}
     >
         <ul className="list-group">
         {
-            following.map((x, i) => <Grid container><Grid item xs={5}><a href={'/profile/'+x.userId}><button onClick={()=>{}}>{x.userId }</button></a></Grid><Grid item xs={2}><button onClick={()=>unfollow(x.userId)}>Unfollow</button></Grid></Grid>
+            following.map((x, i) => 
+            <Grid container justify='center' className={classes.followGrid}>
+              <Grid item xs={8}>
+                <a href={'/profile/'+x.userId}>
+                  <button onClick={()=>{}} className='btn btn-primary'>{x.username }</button>
+                </a>
+              </Grid>
+              <Grid item xs={4}>
+                <button onClick={()=>unfollow(x.userId)} className='btn btn-warning'>Unfollow</button>
+              </Grid>
+            </Grid>
          )
         }
      </ul>
@@ -346,7 +365,9 @@ function unfollow (id){
       conn.post("followers/follow",{
         leaderId:id,
         followerId: localStorage.loggedInId
-      }).then((res)=>{console.log(res)});
+      }).then(()=>{
+      conn.get("/accounts/"+par.id,{params:{loggedInId : localStorage.loggedInId}})
+    .then((res) => {setFollowers(res.data.data.followers)});});
     }
  
     const handleClose = () => {
@@ -394,14 +415,19 @@ function unfollow (id){
         />
         <button
           type="button"
-          className={classes.formButton}
+          className={`btn btn-primary ${classes.formButton}`}
           onClick={ () => updateBio(temp,temp2) }>
           ADD
         </button>            
       </form>
     </Popover></div>;
-    if(par.id!=localStorage.getItem('loggedInId'))
-      return <><button onClick={()=>follow(par.id)}>Follow Me</button></>;
+    if(par.id!=localStorage.getItem('loggedInId')&&followers.includes(localStorage.getItem('loggedInId'))==false)
+      return <><button onClick={()=>{follow(par.id)}}>Follow</button></>;
+    else if(par.id!=localStorage.getItem('loggedInId')&&followers.includes(localStorage.getItem('loggedInId')))
+        return <><button onClick={()=>{unfollow(par.id)}}>Unfollow </button></>;
+    else if(par.id!=localStorage.getItem('loggedInId')){
+      return <></>
+    }
     return (
       pop
     );
@@ -500,75 +526,67 @@ function unfollow (id){
       }}
       
       PaperProps={{
-      style: { width: '70%',
+      style: { width: '30%',
       height:'70vh'},
       }}
     >
-     <h1>Please Enter the information for your new post</h1>
-     <form className={classes.forms}>
-     <Grid container  maxWidth="80vw" className={classes.grid} spacing={2}>
-      <Grid item xs={12} >
+     <form >
+     <Grid container  className={classes.postForm} xs={12} direction='column' justify='center' alignItems='center'>
+      <Grid item >
         <label for='photo'>Select Photo:   </label><br/>
       <input
-                        type="file"
-                        name="photo"
-                        id="photo"
-                        className={classes.formControl}
-                        ref={fileInput}
-                        onChange={ event => {formData.file=( event.target.files[0])} } 
-                    
-                        />
+        type="file"
+        name="photo"
+        id="photo"
+        className={`${classes.formControl}`}
+        ref={fileInput}
+        onChange={ event => {formData.file=( event.target.files[0])} } 
+      />
                         </Grid>
-      <Grid item xs={12} >
+      <Grid item >
         <label for='instructions'>Please List Your Instructions:  </label><br/>
       <textarea
                         type="text"
                         name="Instructions"
                         id="instructions"
-                        placeholder = "apply makeup to face"
-                        
-                        className={classes.formControl}
+                        className={`${classes.formControl} form-control`}
                         ref={fileInput}
                         onChange={ event => {formData.instructions=(event.target.value)} } 
-                    
+                        cols='50'
                         />
                         </Grid>
-          <Grid item xs={5} >
+          <Grid item >
         <label for='kind'>What type of look:  </label><br/>
       <input
                         type="text"
                         name="kind"
                         id="kind"
-                        className={classes.formControl}
-                        
+                        className={`${classes.formControl} form-control`}
                         ref={fileInput}
                         onChange={event => {formData.lookKind=( event.target.value)}} 
-                    
+                        cols='50'
                         />
                         </Grid>
-          <Grid item xs={5} >
+          <Grid item >
             <label for='products'>Time to do in minutes:  </label><br/>
               <input
                         type="number"
                         min={0}
                         name="products"
                         id="products"
-
-                        className={classes.formControl}
+                        className={`${classes.formControl} form-control`}
                         ref={fileInput}
                         onChange={event => {formData.lookTime=( event.target.value)}} 
-                    
+                        cols='50'
                         />
                         </Grid>                        
-        <Grid item xs={1} >
+        <Grid item >
         <label for='difficulty'>Look Difficulty:  </label><br/>
             <select
                         type="select"
                         name="difficulty"
                         id="difficulty"
-                        className={classes.formControl}
-                        
-                    
+                        className={`${classes.formControl} form-control`}
                         ref={fileInput}
                         onChange={ event => {formData.lookDifficulty=(event.target.value )} } 
                     
@@ -579,30 +597,29 @@ function unfollow (id){
                         </Grid>
           
                         
-      <Grid item xs={12} >
+      <Grid item >
         <label for='products'>Products:  </label><br/>
         <textarea
                       
                         name="products"
                         id="products"
-                        className={classes.formControl}
-                        //onChange={handleImageChange}
+                        className={`${classes.formControl} form-control`}
                         placehoder = "enter the name and type of products here"
                         ref={fileInput}
                         onChange={event => {formData.products=( event.target.value)}} 
                         />
                         </Grid>
-                        <Grid item xs={12} >
+                        <Grid item >
                         <button
                             type="button"
-                            className={classes.formButton}
+                            className={`btn btn-primary ${classes.formButton}`}
                             color = "blue"
                             onClick={ () => addPost(formData) }>
                             Post it
                         </button> 
                           </Grid>                 
       </Grid>
-     </form>
+      </form>
     </Popover>
     }
     function ProfilePicPopover(){
@@ -684,15 +701,17 @@ function unfollow (id){
       if(profilePic=="https://via.placeholder.com/150"){
         setPic("https://via.placeholder.com/150");
         setLoaded(true);
-      return <img src="https://via.placeholder.com/150" className={classes.profilePic} onClick={()=>{
-   
-        setPPP(true)}}></img>;}
+        return <img src={pic} className={classes.profilePic} onClick={()=>{
+          setPPP(true);}}/>;
+          
+        }
         
         
         const bufferToImage= async ()=>{
           if(profilePic=="https://via.placeholder.com/150"||profilePic==''||!profilePic){
-            setPic("https://via.placeholder.com/150");
-            return;}
+            setPic("https://via.placeholder.com/150");}
+          else{  
+      
          
           console.log(profilePic);
           if(profilePic){
@@ -710,35 +729,17 @@ function unfollow (id){
          reader.readAsText(blob);
         }
       }
-     
+      }
+     if(par.id==localStorage.loggedInId){
      return <img src={pic} className={classes.profilePic} onClick={()=>{
       setPPP(true);}}/>;
       
     }
-
-    /*function ShowImg(val){
-      const [pic, setPic] = useState('');
-     
-        useEffect(()=>{
-          if(!pic){
-            bufferToImage();
-          }
-        },[]);
-        const bufferToImage= async ()=>{
-          var arrayBufferView = new Uint8Array( val.val.data );
-          var blob = new Blob( [arrayBufferView]);
-        
-         var imageUrl = URL.createObjectURL( blob );
-         var reader = new FileReader();
-         let y;
-         reader.onload = function() {
-             setPic(reader.result);
-         }
-         reader.readAsText(blob);
-        }
-     return <img src={pic} className={classes.postPicture}/>;
+    return <img src={pic} className={classes.profilePic} />;
       
-    }*/
+    }
+
+    
     function changeProfilePic(data){
       setPPP(false);
       if(loaded)
@@ -777,29 +778,29 @@ function unfollow (id){
     return(
       <>
       <Header />
-      <PostingPopover/>
       <ProfilePicPopover/>
+      <PostingPopover/>
       <Card className={classes.bio} variant='outlined'>
         <CardContent className={classes.bioInfo}>
-          <Grid container component="main" maxWidth="80vw" className={classes.grid} spacing={2}> 
-            <Grid className={classes.profilepicgrid} item xs={2} rs={3} spacing={30}>
-              <ShowImg></ShowImg>
+          <Grid container component="main" className={classes.grid}> 
+            <Grid className={classes.profilepicgrid} item xs={4} rs={3} >
+              <ShowImg/>
             </Grid>
-            <Grid id="info" item container xs spacing={1} justify='center' alignItems='flex-start'>
-              <Grid item xs={6} >
+            <Grid id="info" item container xs={4} spacing={1} justify='flex-start' alignItems='center'>
+              <Grid item xs={7} >
                 <Paper className={classes.username} variant='outlined'>{username}</Paper>
               </Grid>
-              <Grid item xs alignItems='center'>
+              <Grid item xs={3}>
                 <BioForm/>
               </Grid>
-              <Grid item xs={6} rs={1}>
+              <Grid item xs rs={1}>
                 <Paper elevation = {0} onClick={hc}><FollowerList/></Paper>
               </Grid>
-              <Grid item xs={5} rs={1}>
+              <Grid item xs rs={1}>
                 <Paper elevation = {0} onClick={hc}><FollowingList/></Paper>
               </Grid>
             </Grid>
-            <Grid item xs rs={3}>
+            <Grid item xs={3} rs={2}>
               <Card elevation = {0} >
                 <CardContent>
                 <p>{bio}</p>

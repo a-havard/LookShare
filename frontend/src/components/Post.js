@@ -91,6 +91,9 @@ const useStyles = makeStyles((theme) => ({
     },
     commentArea: {
       marginTop: '10px'
+    },
+    overlay: {
+      padding: '20px'
     }
   }))
 const Post=props=>{
@@ -124,11 +127,10 @@ const Post=props=>{
     conn.get("/comments/posts/"+props.post.postId)
     .then((res)=>{
         setComments(res.data.data);
-      
     })
 }
 setLoaded(true);
-console.log(accountData)}});
+}});
     
 
 
@@ -149,8 +151,6 @@ console.log(accountData)}});
             </CardContent>
           </CardActionArea>
 <Popover 
-        className={classes.overlay}
-        
         open={openPost}
         anchorPosition={{left: '0vw',top: '0vh'}
         }
@@ -169,8 +169,8 @@ console.log(accountData)}});
         height:'70vh'},
         }}
       >
-          <Grid container  maxWidth="80vw" className={classes.lookFull} spacing={2}>
-            <Grid container xs={3} direction='column' justify='center' alignItems='center'>
+          <Grid container  maxWidth="80vw" className={`${classes.lookFull} ${classes.overlay}`} spacing={2}>
+            <Grid container xs={3} direction='column' justify='flex-start' alignItems='center'>
               <a href={'/profile/'+accountData.accountId} className={classes.username}>{accountData.username}</a>
               <ShowImg className={classes.popoverPic}val={props.post.photo}/>
             </Grid>
@@ -241,7 +241,7 @@ console.log(accountData)}});
                         <li className="list-group-item" key={ i }>
                           <Card>
                             <CardContent>
-                              <h2><a href={"/profile/"+x.authorId}>username</a></h2>
+                              <h2><a href={"/profile/"+x.authorId}>{x.username}</a></h2>
                               <Typography>{x.comment}</Typography>
                             </CardContent>
                           </Card>
@@ -268,15 +268,11 @@ console.log(accountData)}});
         conn.get("/comments/posts/"+props.post.postId)
             .then((res)=>{
                 setComments(res.data.data);
-        
             })
     }  
 
 
     function ShowImg(val){
-        //console.log(val);
-        
-       
           useEffect(()=>{
             
             if(!pic){

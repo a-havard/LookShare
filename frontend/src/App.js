@@ -19,7 +19,6 @@ const App = props => {
         <Route  path="/explore" component={()=><ExplorePage/>}   />
         </Switch>
       </Router>
-
     </div>
   )
 }
