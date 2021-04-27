@@ -470,7 +470,7 @@ module.exports = function routes(app, logger) {
         });
       } else {
         let postId = typeof req.params.postId === "string" ? JSON.parse(req.params.postId) : req.params.postId;
-        let sql = `SELECT * FROM Comments WHERE postId = ${postId}`;
+        let sql = `SELECT * FROM Comments WHERE parentPostId = ${postId}`;
 
         connection.query(sql, function (err, rows, fields) {
           connection.release();
@@ -481,7 +481,7 @@ module.exports = function routes(app, logger) {
               "error": "Error obtaining values"
             })
           } else {
-            res.status(200).json({
+            return res.status(200).json({
               "data": rows,
             });
           }
