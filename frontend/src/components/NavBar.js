@@ -26,11 +26,10 @@ const Header = () => {
                 <IconButton edge="start" color="inherit" aria-label="home" onClick={() => history.push('/explore')}>
                     <Home fontSize="large" />
                 </IconButton>
-                {/* Add code */}
                 <List
                     component="nav"
                     aria-labelledby="main navigation"
-                    className={classes.navDisplayFlex} // this
+                    className={classes.navDisplayFlex} 
                 >
                     <a href={'/explore'} key={'Explore'} className={classes.linkText}>
                     <ListItem button>
@@ -44,7 +43,6 @@ const Header = () => {
                     </a>
                 <UserSearch/>
                 </List>
-                {/* Add code end */}
             </Toolbar>
         </AppBar>       
     )

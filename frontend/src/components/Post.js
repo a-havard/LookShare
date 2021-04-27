@@ -81,10 +81,16 @@ const useStyles = makeStyles((theme) => ({
     formText: {
       fontWeight: 'bold'
     },
+    formTextArea: {
+      marginBottom: '10px'
+    },
     username: {
       color: 'blue',
       textDecoration: 'none',
       fontSize: '30px'
+    },
+    commentArea: {
+      marginTop: '10px'
     }
   }))
 const Post=props=>{
@@ -119,7 +125,7 @@ const Post=props=>{
     conn.get("/comments/posts/"+props.post.postId)
     .then((res)=>{
         setComments(res.data.data);
-
+        console.log(res.data.data)
     })
 }
 setLoaded(true);
@@ -169,7 +175,7 @@ console.log(accountData)}});
               <a href={'/profile/'+accountData.accountId} className={classes.username}>{accountData.username}</a>
               <ShowImg className={classes.popoverPic}val={props.post.photo}/>
             </Grid>
-            <Grid container xs direction='column'>
+            <Grid container xs={9} direction='column'>
               <Grid item xs className={classes.formText}>
                 <h2>Instructions</h2>
                 <ul>
@@ -202,17 +208,17 @@ console.log(accountData)}});
                     <Grid item>
                       <label htmlFor="comment" className={classes.formText}>Comment</label>
                     </Grid>
-                    <Grid item>
+                    <Grid item xs={11}>
                      <textarea
                           id="comment"
                           name="comment"
                           value={formData.comment}
                           onChange={event => setFormData({comment: event.target.value})}
-                          className="form-control"
-                          rows='5' cols='70'
+                          className={`form-control ${classes.formTextArea}`}
+                          rows='4'
                       />
                     </Grid>
-                    <Grid>
+                    <Grid container xs={2}>
                       <button
                         type="button"
                         className="btn btn-primary btn-block"
@@ -223,29 +229,29 @@ console.log(accountData)}});
                 </Grid>
               </Grid>
             </Grid>
+            <Grid container xs={12} className={classes.commentArea} justify='center' alignItems='center'>
+              <Grid item xs={11}>
+                <ul>
+                  <li className="list-group-item">Comments</li>
+                    {
+                      (!comments.length) &&
+                      <li className="list-group-item">No Comments.</li>
+                    }
+                    {
+                      comments.map((x, i) =>
+                        <li className="list-group-item" key={ i }>
+                          <Card>
+                            <CardContent>
+                              <h2><a href={"/profile/"+x.authorId}>username</a></h2>
+                              <Typography>{x.comment}</Typography>
+                            </CardContent>
+                          </Card>
+                        </li>)
+                    }
+                </ul>
+              </Grid>
+            </Grid>
           </Grid>
-
-                  <ul className="list-group">
-        <Grid item xs={12}>
-            <ul>
-        <li className="list-group-item">comments</li>
-        {
-            (!comments.length) &&
-                <li className="list-group-item">No Comments.</li>
-        }
-        {
-            comments.map((x, i) =>
-                <li className="list-group-item" key={ i }><Card>
-                   
-                    <CardContent>
-                        <h2><a href={"/profile/"+x.authorId}>username</a></h2>
-                        <Typography>{x.comment}</Typography>
-                    </CardContent>
-                    </Card></li>)
-        }
-        </ul>
-        </Grid>
-    </ul>
       </Popover>
       </Card>)
       
@@ -285,9 +291,7 @@ console.log(accountData)}});
            var reader = new FileReader();
            let y;
            reader.onload = function() {
-              // alert(reader.result);
-              //console.log(reader.result);
-               setPic(reader.result);
+              setPic(reader.result);
                
            }
            reader.readAsText(blob);
