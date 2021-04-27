@@ -58,13 +58,15 @@ const useStyles = makeStyles((theme) => ({
       alignItems: 'center',
     },
     formControl:{
-      margin: "3px",
-      border : "0",
-      boxShadow:"0 4px 4px 4px lightgray",
-      width:'85%'
+      width: '400px',
+      marginBottom: '13px'
     },
     formButton:{
       margin: '20px auto',
+    },
+    postForm: {
+      width: '100%',
+      paddingTop: '20px'
     },
     bioLink:{
       width:'85%'
@@ -518,74 +520,67 @@ function unfollow (id){
       }}
       
       PaperProps={{
-      style: { width: '70%',
+      style: { width: '30%',
       height:'70vh'},
       }}
     >
-     <h1>Please Enter the information for your new post</h1>
-     <form className={classes.forms}>
-     <Grid container  maxWidth="80vw" className={classes.grid} spacing={2}>
-      <Grid item xs={12} >
+     <form >
+     <Grid container  className={classes.postForm} xs={12} direction='column' justify='center' alignItems='center'>
+      <Grid item >
         <label for='photo'>Select Photo:   </label><br/>
       <input
         type="file"
         name="photo"
         id="photo"
-        className={classes.formControl}
+        className={`${classes.formControl}`}
         ref={fileInput}
         onChange={ event => {formData.file=( event.target.files[0])} } 
       />
                         </Grid>
-      <Grid item xs={12} >
+      <Grid item >
         <label for='instructions'>Please List Your Instructions:  </label><br/>
       <textarea
                         type="text"
                         name="Instructions"
                         id="instructions"
-                        placeholder = "apply makeup to face"
-                        
-                        className={classes.formControl}
+                        className={`${classes.formControl} form-control`}
                         ref={fileInput}
                         onChange={ event => {formData.instructions=(event.target.value)} } 
-                    
+                        cols='50'
                         />
                         </Grid>
-          <Grid item xs={5} >
+          <Grid item >
         <label for='kind'>What type of look:  </label><br/>
       <input
                         type="text"
                         name="kind"
                         id="kind"
-                        className={classes.formControl}
-                        
+                        className={`${classes.formControl} form-control`}
                         ref={fileInput}
                         onChange={event => {formData.lookKind=( event.target.value)}} 
-                    
+                        cols='50'
                         />
                         </Grid>
-          <Grid item xs={5} >
+          <Grid item >
             <label for='products'>Time to do in minutes:  </label><br/>
               <input
                         type="number"
                         min={0}
                         name="products"
                         id="products"
-
-                        className={classes.formControl}
+                        className={`${classes.formControl} form-control`}
                         ref={fileInput}
                         onChange={event => {formData.lookTime=( event.target.value)}} 
-                    
+                        cols='50'
                         />
                         </Grid>                        
-        <Grid item xs={1} >
+        <Grid item >
         <label for='difficulty'>Look Difficulty:  </label><br/>
             <select
                         type="select"
                         name="difficulty"
                         id="difficulty"
-                        className={classes.formControl}
-                        
-                    
+                        className={`${classes.formControl} form-control`}
                         ref={fileInput}
                         onChange={ event => {formData.lookDifficulty=(event.target.value )} } 
                     
@@ -596,19 +591,19 @@ function unfollow (id){
                         </Grid>
           
                         
-      <Grid item xs={12} >
+      <Grid item >
         <label for='products'>Products:  </label><br/>
         <textarea
                       
                         name="products"
                         id="products"
-                        className={classes.formControl}
+                        className={`${classes.formControl} form-control`}
                         placehoder = "enter the name and type of products here"
                         ref={fileInput}
                         onChange={event => {formData.products=( event.target.value)}} 
                         />
                         </Grid>
-                        <Grid item xs={12} >
+                        <Grid item >
                         <button
                             type="button"
                             className={`btn btn-primary ${classes.formButton}`}
@@ -618,7 +613,7 @@ function unfollow (id){
                         </button> 
                           </Grid>                 
       </Grid>
-     </form>
+      </form>
     </Popover>
     }
     function ProfilePicPopover(){
